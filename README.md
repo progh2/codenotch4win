@@ -1,52 +1,93 @@
-# Codenotch for Windows
+# Codenotch for Windows (codenotch4win)
 
-A Windows port of [Codenotch](https://github.com/vinzdg/codenotch) — the usage notch that
+[한국어 README](README.ko.md) · [PRD (Korean)](docs/PRD.md)
+
+A Windows build of [Codenotch](https://github.com/vinzdg/codenotch) — the usage notch that
 sits on the edge of your screen and answers two questions at a glance:
 **how much of my AI allowance is left**, and **is Claude still working**.
+
+This repository is a fork of [Im-Midi/codenotch-windows](https://github.com/Im-Midi/codenotch-windows)
+(the Windows port merged into upstream as its `windows/` tree). The port itself is mature —
+what it lacked was distribution. This fork exists to close that gap:
+
+- **Prebuilt binaries** — download and run, no Rust toolchain required
+- **Auto-update** — the app keeps itself current from GitHub Releases
+- **Start with Windows** — one checkbox in Settings (already in the port; enabled on first run)
+- **Korean localization** — on top of the existing i18n layer
+
+See the [roadmap](#roadmap) for where each of these stands.
+
+## What it shows
 
 Same design language as the macOS original (inverse-rounded pill, colour-graded rings,
 hover card with per-window bars), rebuilt for Windows in Rust + Tauri 2 / WebView2.
 No code is copied from the Swift app; the providers are reimplemented from their
 documented behaviour and the wire formats.
 
-## What it shows
-
 | Cell | Source | How it reads it |
 |---|---|---|
-| **Claude** | `GET https://api.anthropic.com/api/oauth/usage` with the token Claude Code keeps in `~/.claude/.credentials.json` | Session / weekly windows, 429 back-off with a persisted deadline, stale readings dimmed with their age. A thin arc spins inside the ring while a Claude session is working, and pulses amber when one is waiting on you (Claude Code hooks + transcript watcher, desktop app included). |
-| **Codex** | The local Codex sign-in in `~/.codex/auth.json` (read only, never refreshed), falling back to the newest session snapshot | Live primary/secondary windows (5h + weekly on paid plans, a monthly window on free) while Codex is signed in; Spark and Code review appear on the hover card when Codex reports them; otherwise the last snapshot, marked stale by its own timestamp. |
-| **Cursor** | The editor's own session from `state.vscdb` → `cursor.com/api/usage-summary` | Included usage / API usage / on-demand, reset at billing-cycle end. Nothing to sign into: it borrows the editor's session, so there is only ever one account. |
-| **Antigravity** | Official `agy` CLI `/usage` print when installed; otherwise the existing local `language_server` bridge, Google Cloud Code API, or transcript model count | Official four quota rows (Gemini & Claude/GPT 5h/weekly) without running the full IDE. When CLI is absent, falls back to legacy local bridge/API. |
+| **Claude** | `GET https://api.anthropic.com/api/oauth/usage` with the token Claude Code keeps in `~/.claude/.credentials.json` | Session / weekly windows, 429 back-off, stale readings dimmed with their age. A thin arc spins while a Claude session is working, and pulses amber when one is waiting on you. |
+| **Codex** | The local Codex sign-in in `~/.codex/auth.json` (read only), falling back to the newest session snapshot | Live primary/secondary windows (5h + weekly on paid plans, monthly on free). |
+| **Cursor** | The editor's own session from `state.vscdb` → `cursor.com/api/usage-summary` | Included usage / API usage / on-demand, reset at billing-cycle end. |
+| **Antigravity** | Official `agy` CLI `/usage` print when installed; otherwise the local `language_server` bridge | Official quota rows (Gemini & Claude/GPT, 5h/weekly) without running the full IDE. |
 
 Providers that are not installed simply do not get a cell.
 
-### Antigravity
+## Install
 
-- **Official CLI (Preferred)**: When the official Antigravity CLI (`agy.exe`) is installed (`%LOCALAPPDATA%\agy\bin\agy.exe` or on `PATH`) and signed in, Codenotch reads official quotas directly without keeping the full IDE running.
-- **Execution**: Runs the official CLI in a hidden Windows pseudo-console, with a 70-second timeout and cleanup of its process tree. It does not need PowerShell scripts or a separate service.
-- **Refresh**: Checks at startup and on hover/explicit request when readings are at least five minutes old; failed attempts are also limited to once per five minutes. It keeps previous readings on failure, without switching to legacy APIs. The CLI is not launched periodically while idle.
-- **Fallback**: When the official CLI is not installed, Codenotch preserves the legacy local bridge (`language_server`), Credential Manager, and transcript model turn counting to maintain compatibility with existing installations.
-- **Official CLI Reference**: Standalone `/usage` printing is described in the [official Antigravity CLI documentation](https://www.antigravity.google/docs/cli/headless). Note: no categorical Terms of Service guarantee is made.
+> **Status:** first binary release is milestone [M1](../../milestones). Until it ships, build from source (below).
 
-Restart Codenotch after installing or removing `agy`: the source is selected at startup.
-The CLI's text report is parsed defensively; an unsupported format or failed sign-in
-shows an error or the last reading marked stale. Codenotch does not automate sign-in.
+Two flavours will be published on the [Releases](../../releases) page:
 
-## Install / build
+- **`Codenotch-Setup-x.y.z.exe`** (NSIS installer) — recommended. Installs per-user (no admin),
+  and is the **auto-update channel**: the app checks GitHub Releases and updates itself.
+- **`codenotch-x.y.z-portable.exe`** — single portable executable, run from anywhere.
+  No auto-update; it notifies you when a new version is available.
 
-Prerequisites: Rust (MSVC toolchain), WebView2 runtime (ships with Windows 11).
+Requirements: Windows 10/11 with the WebView2 runtime (preinstalled on Windows 11;
+the installer bootstraps it on Windows 10).
+
+## Build from source
+
+Prerequisites: Rust (MSVC toolchain), WebView2 runtime.
 
 ```powershell
-# from this directory (the repo root here; `windows/` inside the upstream repo)
 cargo build --release
 .\target\release\codenotch.exe          # pill appears on the right edge of the primary monitor
 .\target\release\codenotch.exe doctor   # self-diagnosis: credentials, data sources, icons, hooks
 ```
 
 Tray menu: **Settings…**, **Refresh usage now**, **Quit**. Everything else is in the settings
-window: the taskbar icon, which rings the notch shows, its size, start with Windows, the
+window: the taskbar icon, which rings the notch shows, its size, **start with Windows**, the
 language, Claude Code hooks, reset position, and the data folder (`%APPDATA%\codenotch` —
 logs, persisted readings, icon overrides).
+
+## Privacy & security
+
+- Credentials are read from the files each vendor's own app already keeps on your machine,
+  and are only ever sent to that vendor's own endpoint. Nothing is sent anywhere else.
+- No telemetry, no analytics.
+- Auto-update artifacts are signed; the updater verifies signatures before applying.
+- Runs entirely per-user; no administrator rights needed.
+
+## Roadmap
+
+Work is tracked with [issues](../../issues) and [milestones](../../milestones):
+
+| Milestone | Goal |
+|---|---|
+| **v0.4.0 — First binary release** | GitHub Actions release pipeline; installer + portable exe downloadable from Releases |
+| **v0.5.0 — Auto-update** | `tauri-plugin-updater` + signed `latest.json` on GitHub Releases |
+| **v0.6.0 — First-run experience** | Onboarding (offer autostart), Korean localization, Windows 10 verification |
+| **v1.0.0 — Expansion** | More providers (Gemini CLI, GitHub Copilot, …), upstream sync & contribution |
+
+## Relationship to upstream
+
+The port follows the upstream design and provider semantics. It is developed at
+[Im-Midi/codenotch-windows](https://github.com/Im-Midi/codenotch-windows) and offered to
+[vinzdg/codenotch](https://github.com/vinzdg/codenotch) as its `windows/` tree.
+This fork tracks that work (remote `upstream`) and intends to contribute the release and
+auto-update pipeline back once proven.
 
 ### Icons
 
@@ -55,24 +96,8 @@ Provider marks are the SVGs from [`@lobehub/icons-static-svg`](https://github.co
 `claude|codex|cursor|gemini.svg` (or `.png`) into `%APPDATA%\codenotch\glyphs\` to override.
 The marks remain the trademarks of their owners.
 
-## Layout
-
-```
-.
-├── codenotch/          the Windows app (pill, hover card, settings, providers)
-└── codenotch-hook/     tiny helper Claude Code calls to report session events
-```
-
-A pull request that touches this tree is built and tested; the check is skipped
-inside forks until the pull request is opened here.
-
-## Relationship to upstream
-
-This port follows the upstream design and provider semantics. It is developed at
-[Im-Midi/codenotch-windows](https://github.com/Im-Midi/codenotch-windows) and offered to the
-upstream project as its `windows/` tree; the two are kept in sync. Session detection
-originated in [Im-Midi/Pac-Man](https://github.com/Im-Midi/Pac-Man) (MIT).
-
 ## License
 
-MIT — see `LICENSE`. The Codenotch design and name belong to the upstream author.
+MIT — see [`LICENSE`](LICENSE). The Codenotch design and name belong to the
+[upstream author](https://github.com/vinzdg); the Windows port is by
+[Im-Midi](https://github.com/Im-Midi); this fork adds distribution on top.
