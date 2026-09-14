@@ -1,6 +1,6 @@
 # Codenotch for Windows (codenotch4win)
 
-[English README](README.md) · [PRD](docs/PRD.md)
+[English README](README.md) · [PRD](docs/PRD.md) · [소개 페이지](https://progh2.github.io/codenotch4win/)
 
 [Codenotch](https://github.com/vinzdg/codenotch)의 윈도우 버전입니다 — 화면 가장자리에 붙어서
 두 가지 질문에 한눈에 답해주는 "사용량 노치": **AI 사용량이 얼마나 남았나**, 그리고

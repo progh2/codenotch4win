@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codenotch for Windows — 화면 가장자리 AI 사용량 노치</title>
+  <meta name="description" content="Windows 화면 가장자리에 붙어 Claude Code, Codex, Cursor, Antigravity 사용량을 한눈에 보여주는 노치. 인스톨러로 바로 설치하세요.">
+  <meta name="theme-color" content="#070708">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="canonical" href="https://progh2.github.io/codenotch4win/">
+  <meta property="og:title" content="Codenotch for Windows">
+  <meta property="og:description" content="화면 가장자리에 붙어서 AI 사용량을 한눈에 보여주는 Windows 노치.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="assets/notch-hero.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip" href="#main">본문으로 건너뛰기</a>
+
+  <header class="nav">
+    <div class="wrap nav-inner">
+      <a class="brand" href="#top">
+        <img class="brand-mark" src="assets/favicon.svg" alt="" width="28" height="28">
+        Codenotch
+      </a>
+      <nav class="nav-links" aria-label="주요 링크">
+        <a href="#features">기능</a>
+        <a href="#install">설치</a>
+        <a href="https://github.com/progh2/codenotch4win">GitHub</a>
+        <a class="btn btn-primary" href="https://github.com/progh2/codenotch4win/releases/latest">최신 버전 받기</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero" id="top">
+      <div class="wrap hero-grid">
+        <div>
+          <p class="kicker"><span class="kicker-dot" aria-hidden="true"></span> Windows · 최신 <span data-latest-tag>v0.4.2</span></p>
+          <h1>Codenotch<br>for Windows</h1>
+          <p class="lede-en">The usage notch that sits on the edge of your screen.</p>
+          <p class="lede">화면 가장자리에 붙어서 두 가지에 한눈에 답합니다. <strong>AI 사용량이 얼마나 남았나</strong>, 그리고 <strong>Claude가 아직 작업 중인가</strong>.</p>
+          <div class="cta-row">
+            <a class="btn btn-primary" data-setup-href href="https://github.com/progh2/codenotch4win/releases/latest">인스톨러 다운로드</a>
+            <a class="btn btn-ghost" href="https://github.com/progh2/codenotch4win">GitHub 저장소</a>
+          </div>
+          <div class="meta-row">
+            <span class="chip">권장 <code>Codenotch-Setup-*.exe</code></span>
+            <span class="chip">Windows 10/11</span>
+            <span class="chip">관리자 권한 불필요</span>
+          </div>
+        </div>
+        <figure class="hero-visual">
+          <div class="display">
+            <img src="assets/notch-hero.png" width="415" height="639" alt="Windows 바탕화면 오른쪽 가장자리에 도킹된 검은 필. Claude 98%, Codex 100%, Cursor 24% 사용량 링이 표시되어 있습니다.">
+          </div>
+          <figcaption class="display-caption">실제 UI 스크린샷 · 주 모니터 오른쪽 가장자리</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section id="features">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>한눈에 보이는 사용량</h2>
+          <p>macOS 원본과 같은 디자인 언어를 Rust + Tauri 2 / WebView2로 다시 만든 Windows 빌드입니다. 이 포크는 배포가 없던 포트에 실행 파일을 더합니다.</p>
+        </div>
+        <div class="features">
+          <article class="card">
+            <svg class="ring-ico" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="11" fill="none" stroke="#303030" stroke-width="3"/><circle cx="16" cy="16" r="11" fill="none" stroke="#28e07b" stroke-width="3" stroke-dasharray="22 70" transform="rotate(-90 16 16)"/></svg>
+            <h3>Windows 원클릭 설치</h3>
+            <p>Releases에서 <code>Codenotch-Setup-x.y.z.exe</code>(NSIS)를 받아 실행하면 됩니다. 사용자별 설치라 관리자 권한이 없고, Rust 툴체인도 필요 없습니다. 포터블은 <code>codenotch-x.y.z-portable.zip</code>입니다.</p>
+          </article>
+          <article class="card">
+            <svg class="ring-ico" viewBox="0 0 32 32" aria-hidden="true"><rect x="18" y="4" width="12" height="24" rx="6" fill="#111" stroke="#2e2e2e"/><circle cx="24" cy="12" r="3.5" fill="none" stroke="#ff3f00" stroke-width="1.6"/></svg>
+            <h3>화면 가장자리 사용량 표시</h3>
+            <p>주 모니터 오른쪽 가장자리에 역방향 라운드 필이 붙습니다. 색상 그라데이션 링으로 사용량을 보고, 마우스를 올리면 창별 막대가 있는 호버 카드가 펼쳐집니다. Claude가 작업 중이면 얇은 호가 회전하고, 입력을 기다리면 주황색으로 맥박합니다.</p>
+          </article>
+          <article class="card">
+            <svg class="ring-ico" viewBox="0 0 32 32" aria-hidden="true"><circle cx="10" cy="16" r="5" fill="none" stroke="#ff3f00" stroke-width="2"/><circle cx="22" cy="16" r="5" fill="none" stroke="#28e07b" stroke-width="2"/></svg>
+            <h3>여러 AI 프로바이더</h3>
+            <p>Claude Code, Codex, Cursor, Antigravity 사용량을 읽습니다. 설치되지 않은 도구는 셀 자체가 나타나지 않습니다. 자격증명은 각 도구가 이미 보관 중인 로컬 파일에서만 읽습니다.</p>
+          </article>
+          <article class="card">
+            <svg class="ring-ico" viewBox="0 0 32 32" aria-hidden="true"><path d="M8 18l4 4 12-12" fill="none" stroke="#ffbf00" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <h3>자동 업데이트 채널</h3>
+            <p>인스톨러 설치본이 GitHub Releases 자동 업데이트 채널입니다. 업데이터 마일스톤(v0.5.0)이 들어오면 앱이 스스로 최신 버전을 유지합니다. 포터블 zip은 자동 교체 없이 새 버전 알림만 표시합니다.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="providers">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>읽는 대상</h2>
+          <p>각 셀은 해당 벤더의 자체 엔드포인트와 로컬 자격증명만 사용합니다. 추측값은 표시하지 않습니다.</p>
+        </div>
+        <div class="providers">
+          <article class="provider">
+            <strong>Claude</strong>
+            <span>세션·주간 윈도우. 작업 중/대기 상태를 링 애니메이션으로 표시합니다.</span>
+          </article>
+          <article class="provider">
+            <strong>Codex</strong>
+            <span>로컬 로그인 또는 최신 세션 스냅샷. 유료는 5시간+주간, 무료는 월간.</span>
+          </article>
+          <article class="provider">
+            <strong>Cursor</strong>
+            <span>에디터 세션의 Auto / API / 온디맨드 사용량. Auth0·엔터프라이즈 로그인 지원.</span>
+          </article>
+          <article class="provider">
+            <strong>Antigravity</strong>
+            <span>공식 <code>agy</code> CLI 또는 로컬 브리지로 Gemini·Claude/GPT 쿼터를 표시합니다.</span>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="install">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>설치</h2>
+          <p>요구사항: Windows 10/11과 WebView2 런타임. Windows 11은 기본 내장, Windows 10은 인스톨러가 자동 설치합니다.</p>
+        </div>
+        <div class="steps">
+          <div class="step">
+            <b>01</b>
+            <p><a href="https://github.com/progh2/codenotch4win/releases/latest">Releases</a>에서 권장 파일 <code>Codenotch-Setup-x.y.z.exe</code>를 받습니다.</p>
+          </div>
+          <div class="step">
+            <b>02</b>
+            <p>실행해 사용자 계정에 설치합니다. 관리자 권한은 필요 없습니다.</p>
+          </div>
+          <div class="step">
+            <b>03</b>
+            <p>주 모니터 오른쪽에 필이 나타납니다. 트레이에서 Settings, Refresh, Quit를 엽니다.</p>
+          </div>
+          <div class="step">
+            <b>04</b>
+            <p>각 도구에 한 번 로그인하거나 실행하면 셀이 살아납니다. <code>codenotch.exe doctor</code>로 진단을 볼 수 있습니다.</p>
+          </div>
+        </div>
+        <p class="note">바이너리는 아직 코드 서명이 없어 첫 실행 시 SmartScreen 경고가 뜹니다. <strong>추가 정보 → 실행</strong>을 선택하세요.</p>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="https://github.com/progh2/codenotch4win/releases/latest">GitHub Releases에서 받기</a>
+          <a class="btn btn-ghost" href="https://github.com/progh2/codenotch4win/blob/main/README.ko.md">한국어 README</a>
+        </div>
+      </div>
+    </section>
+
+    <section id="privacy">
+      <div class="wrap split">
+        <article class="card">
+          <h3>개인정보</h3>
+          <p>자격증명은 각 벤더 앱이 이미 컴퓨터에 보관 중인 파일에서만 읽고, 해당 벤더 엔드포인트로만 전송됩니다. 텔레메트리와 분석 수집은 없습니다. 전부 사용자 권한으로 동작합니다.</p>
+        </article>
+        <article class="card">
+          <h3>이 포크가 하는 일</h3>
+          <p><a href="https://github.com/Im-Midi/codenotch-windows">Im-Midi/codenotch-windows</a> 포트에 바이너리 릴리스를 더한 배포 포크입니다. 디자인과 이름은 <a href="https://github.com/vinzdg/codenotch">업스트림 Codenotch</a>에 있습니다. MIT.</p>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap foot-row">
+      <div>
+        Codenotch for Windows (codenotch4win)
+        <div class="fine">프로모 페이지 · 수치는 README와 첨부 스크린샷에 있는 내용만 사용했습니다.</div>
+      </div>
+      <div>
+        <a href="https://github.com/progh2/codenotch4win">저장소</a>
+        ·
+        <a href="https://github.com/progh2/codenotch4win/releases/latest">Releases</a>
+        ·
+        <a href="PRD.md">PRD</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      fetch("https://api.github.com/repos/progh2/codenotch4win/releases/latest")
+        .then(function (res) { return res.ok ? res.json() : null; })
+        .then(function (data) {
+          if (!data) return;
+          document.querySelectorAll("[data-latest-tag]").forEach(function (el) {
+            el.textContent = data.tag_name || el.textContent;
+          });
+          var setup = (data.assets || []).find(function (asset) {
+            return /^Codenotch-Setup-.*\.exe$/i.test(asset.name);
+          });
+          if (setup && setup.browser_download_url) {
+            document.querySelectorAll("[data-setup-href]").forEach(function (el) {
+              el.href = setup.browser_download_url;
+            });
+          }
+        })
+        .catch(function () {});
+    })();
+  </script>
+</body>
+</html>
