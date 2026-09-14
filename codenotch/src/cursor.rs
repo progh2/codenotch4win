@@ -198,6 +198,31 @@ pub fn probe() -> String {
     }
 }
 
+/// Redacted shape of a JSON value: keys, numbers and booleans survive; strings are
+/// reduced to their length so no email, id or token can reach doctor.log.
+fn redact_shape(v: &serde_json::Value) -> serde_json::Value {
+    use serde_json::Value::{Array, Object, String as S};
+    match v {
+        Object(m) => Object(m.iter().map(|(k, x)| (k.clone(), redact_shape(x))).collect()),
+        Array(a) => Array(a.iter().take(3).map(redact_shape).collect()),
+        S(s) => S(format!("<str:{}>", s.len())),
+        other => other.clone(),
+    }
+}
+
+/// For doctor: the live usage-summary reply with every string stripped — enough to see
+/// which buckets the account's reply actually carries (e.g. a Grok Bot allowance).
+pub fn probe_summary() -> String {
+    let Some(creds) = read_credentials() else {
+        return "Cursor summary: no session to borrow".into();
+    };
+    match fetch_once(&creds.cookie) {
+        Ok(v) => format!("Cursor usage-summary shape: {}", redact_shape(&v)),
+        Err(FetchErr::NeedsAuth) => "Cursor summary: session rejected (401/403)".into(),
+        Err(FetchErr::Other(m)) => format!("Cursor summary: {m}"),
+    }
+}
+
 // ---------------- Parsing ----------------
 
 fn pct(v: Option<&serde_json::Value>) -> Option<f64> {
