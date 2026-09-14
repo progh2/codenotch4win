@@ -244,10 +244,9 @@ h1 {
   position: relative;
   margin-left: auto;
   width: min(100%, 420px);
-  border-radius: 28px 0 0 28px;
+  border-radius: 28px;
   overflow: hidden;
   border: 1px solid #3a3a3e;
-  border-right: none;
   background: #8ec8ef;
   box-shadow: var(--shadow), 0 0 0 1px rgba(255, 255, 255, 0.04);
 }
@@ -268,7 +267,7 @@ h1 {
 
 .display-caption {
   margin: 12px 0 0;
-  color: var(--dim);
+  color: var(--muted);
   font-size: 12px;
   text-align: right;
 }
@@ -325,8 +324,8 @@ section { padding: 28px 0; }
 }
 
 .ring-ico {
-  width: 28px;
-  height: 28px;
+  width: 36px;
+  height: 36px;
   margin-bottom: 14px;
   color: var(--text);
 }
@@ -425,7 +424,7 @@ footer {
 footer a { color: var(--muted); }
 
 @media (max-width: 880px) {
-  .hero { padding-top: 40px; }
+  .hero { padding-top: 24px; padding-bottom: 16px; }
   .hero-grid,
   .features,
   .providers,
@@ -433,11 +432,19 @@ footer a { color: var(--muted); }
   .split {
     grid-template-columns: 1fr;
   }
+  .lede { font-size: 16px; }
+  .meta-row { display: none; }
   .display {
-    width: min(100%, 360px);
+    width: min(100%, 300px);
+    height: 210px;
     margin: 0 auto;
-    border-radius: 24px;
-    border-right: 1px solid #3a3a3e;
+    border-radius: 22px;
+  }
+  .display img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 100% 52%;
   }
   .display-caption { text-align: center; }
   .nav-links a:not(.btn) { display: none; }
