@@ -117,12 +117,57 @@ struct Creds {
     plan: Option<String>,
 }
 
+/// Base64url without padding — enough to open the JWT payload, nothing more.
+fn b64url_decode(s: &str) -> Option<Vec<u8>> {
+    fn val(c: u8) -> Option<u32> {
+        match c {
+            b'A'..=b'Z' => Some((c - b'A') as u32),
+            b'a'..=b'z' => Some((c - b'a' + 26) as u32),
+            b'0'..=b'9' => Some((c - b'0' + 52) as u32),
+            b'-' => Some(62),
+            b'_' => Some(63),
+            _ => None,
+        }
+    }
+    let bytes = s.trim_end_matches('=').as_bytes();
+    let mut out = Vec::with_capacity(bytes.len() * 3 / 4);
+    for chunk in bytes.chunks(4) {
+        if chunk.len() < 2 {
+            return None;
+        }
+        let mut acc: u32 = 0;
+        for (j, &c) in chunk.iter().enumerate() {
+            acc |= val(c)? << (18 - 6 * j as u32);
+        }
+        out.push((acc >> 16) as u8);
+        if chunk.len() > 2 {
+            out.push((acc >> 8) as u8);
+        }
+        if chunk.len() > 3 {
+            out.push(acc as u8);
+        }
+    }
+    Some(out)
+}
+
+/// The `sub` claim of the access token: Auth0/enterprise sign-ins (and accounts migrated after
+/// the SpaceX acquisition) have no `cursorAuth/stripeMembershipAuthId`, and the cookie's account
+/// id is the same value the JWT already carries (upstream vinzdg/codenotch#34).
+fn jwt_sub(token: &str) -> Option<String> {
+    let payload = token.split('.').nth(1)?;
+    let json: serde_json::Value = serde_json::from_slice(&b64url_decode(payload)?).ok()?;
+    json.get("sub")
+        .and_then(|s| s.as_str())
+        .filter(|s| !s.is_empty())
+        .map(str::to_string)
+}
+
 /// Re-read every time: the editor rotates the token, and holding on to an old value signs us out
 fn read_credentials() -> Option<Creds> {
     let path = store_url()?;
     let conn = open_ro(&path)?;
     let token = item(&conn, "cursorAuth/accessToken")?;
-    let auth_id = item(&conn, "cursorAuth/stripeMembershipAuthId")?;
+    let auth_id = item(&conn, "cursorAuth/stripeMembershipAuthId").or_else(|| jwt_sub(&token))?;
     let plan = item(&conn, "cursorAuth/stripeMembershipType");
     Some(Creds { cookie: format!("WorkosCursorSessionToken={auth_id}::{token}"), plan })
 }
@@ -139,7 +184,17 @@ pub fn probe() -> String {
             c.cookie.len(),
             c.plan.unwrap_or_else(|| "?".into())
         ),
-        None => format!("Cursor: {} exists but cursorAuth/* could not be read (editor not signed in, or SQLite failed to open)", p.display()),
+        None => {
+            let detail = match open_ro(&p) {
+                None => "SQLite failed to open".into(),
+                Some(conn) => format!(
+                    "accessToken {}, stripeMembershipAuthId {} (editor signed out?)",
+                    if item(&conn, "cursorAuth/accessToken").is_some() { "present" } else { "missing" },
+                    if item(&conn, "cursorAuth/stripeMembershipAuthId").is_some() { "present" } else { "missing" },
+                ),
+            };
+            format!("Cursor: {} exists but the session could not be borrowed — {}", p.display(), detail)
+        }
     }
 }
 
@@ -161,8 +216,12 @@ pub fn parse_summary(v: &serde_json::Value) -> (Vec<LimitWindow>, String) {
     let usage = v.get("individualUsage").cloned().unwrap_or(serde_json::Value::Null);
     let plan = usage.get("plan").cloned().unwrap_or(serde_json::Value::Null);
     let mut out = Vec::new();
-    // Headline = the dashboard number; 0 is a reading too
-    if let Some(total) = pct(plan.get("totalPercentUsed")) {
+    // Headline = the dashboard number; 0 is a reading too. The dashboard row is Auto usage;
+    // totalPercentUsed blends Auto and API, so it is only the fallback for older replies
+    // (upstream vinzdg/codenotch#19).
+    if let Some(auto) = pct(plan.get("autoPercentUsed")) {
+        out.push(LimitWindow { id: "auto".into(), label: "Auto usage".into(), used: auto, resets_at, ..Default::default() });
+    } else if let Some(total) = pct(plan.get("totalPercentUsed")) {
         out.push(LimitWindow { id: "included".into(), label: "Included usage".into(), used: total, resets_at, ..Default::default() });
     }
     if let Some(api) = pct(plan.get("apiPercentUsed")) {
@@ -182,6 +241,24 @@ pub fn parse_summary(v: &serde_json::Value) -> (Vec<LimitWindow>, String) {
                     used: (u / limit).clamp(0.0, 1.0),
                     resets_at, ..Default::default()
                 });
+            }
+        }
+    }
+    // Enterprise/team replies meter absolute used/limit under individualUsage.overall
+    // instead of plan percentages (upstream vinzdg/codenotch#34)
+    if out.is_empty() {
+        if let Some(ov) = usage.get("overall") {
+            let used = ov.get("used").and_then(|x| x.as_f64());
+            let limit = ov.get("limit").and_then(|x| x.as_f64()).unwrap_or(0.0);
+            if let Some(u) = used {
+                if limit > 0.0 {
+                    out.push(LimitWindow {
+                        id: "included".into(),
+                        label: "Included usage".into(),
+                        used: (u / limit).clamp(0.0, 1.0),
+                        resets_at, ..Default::default()
+                    });
+                }
             }
         }
     }
@@ -271,6 +348,72 @@ fn sleep_interruptible(secs: u64) {
             return;
         }
         std::thread::sleep(Duration::from_secs(1));
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn b64url_encode(data: &[u8]) -> String {
+        const T: &[u8; 64] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+        let mut out = String::new();
+        for chunk in data.chunks(3) {
+            let mut acc: u32 = 0;
+            for (j, &b) in chunk.iter().enumerate() {
+                acc |= (b as u32) << (16 - 8 * j as u32);
+            }
+            for j in 0..=chunk.len() {
+                out.push(T[((acc >> (18 - 6 * j as u32)) & 0x3f) as usize] as char);
+            }
+        }
+        out
+    }
+
+    fn fake_jwt(payload: serde_json::Value) -> String {
+        format!(
+            "{}.{}.sig",
+            b64url_encode(br#"{"alg":"RS256"}"#),
+            b64url_encode(payload.to_string().as_bytes())
+        )
+    }
+
+    #[test]
+    fn jwt_sub_reads_auth0_subject() {
+        let tok = fake_jwt(serde_json::json!({ "sub": "auth0|user_ABC123", "exp": 1 }));
+        assert_eq!(jwt_sub(&tok).as_deref(), Some("auth0|user_ABC123"));
+    }
+
+    #[test]
+    fn jwt_sub_rejects_garbage() {
+        assert_eq!(jwt_sub("not-a-jwt"), None);
+        assert_eq!(jwt_sub(""), None);
+        let no_sub = fake_jwt(serde_json::json!({ "exp": 1 }));
+        assert_eq!(jwt_sub(&no_sub), None);
+    }
+
+    #[test]
+    fn summary_prefers_auto_over_blended_total() {
+        let v = serde_json::json!({
+            "billingCycleEnd": "2026-10-01T00:00:00Z",
+            "individualUsage": { "plan": { "autoPercentUsed": 20.0, "totalPercentUsed": 25.0, "apiPercentUsed": 100.0 } }
+        });
+        let (w, _) = parse_summary(&v);
+        assert_eq!(w[0].label, "Auto usage");
+        assert!((w[0].used - 0.20).abs() < 1e-9);
+        assert_eq!(w[1].label, "API usage");
+    }
+
+    #[test]
+    fn summary_enterprise_overall_used_limit() {
+        let v = serde_json::json!({
+            "membershipType": "enterprise",
+            "individualUsage": { "plan": {}, "overall": { "used": 6907.0, "limit": 45000.0 } }
+        });
+        let (w, note) = parse_summary(&v);
+        assert_eq!(w.len(), 1);
+        assert!((w[0].used - 6907.0 / 45000.0).abs() < 1e-9);
+        assert!(note.is_empty());
     }
 }
 
