@@ -13,6 +13,7 @@
 | **v0.4.1** | Cursor Auth0/엔터프라이즈 로그인 수정(#16) — `stripeMembershipAuthId` 부재 시 JWT `sub` 폴백, 엔터프라이즈 used/limit 파싱, headline을 대시보드의 Auto 행과 일치 |
 | **v0.4.2** | doctor에 usage-summary 응답 키 구조 진단 추가 — Grok Bot 버킷(#15) 발견용, 문자열 전부 마스킹 |
 | **v0.4.3** | **Grok Bot 지원**(#15) — Cursor 호버 카드에 주간 사용률 막대. usage-summary에는 버킷이 없음을 진단으로 확인 후, Connect RPC `DashboardService/GetSandUsageStatus`(내부 코드명 "Sand", Bearer 토큰 재사용)로 구현 |
+| **v0.5.0** | **자동 업데이트**(#4) — tauri-plugin-updater, 시작 시 + 24시간마다 확인, minisign 서명 검증 후 설치·재시작. 포터블은 로그 알림만. 서명 키 시크릿 등록 후 릴리스 |
 
 실기 검증(#3): 설치·실행·프로바이더 표시(Claude/Codex/Cursor) 확인 완료. 남은 것 — 재부팅 후 자동 실행, 포터블 zip 동작 확인. 발견된 개선점: 업그레이드 설치가 실행 중인 구버전을 종료하지 않아 단일 인스턴스 가드에 막힘(#17, M3).
 
@@ -86,15 +87,19 @@ Rust 툴체인을 깔고 싶지 않고, 사용량 한도가 얼마나 남았는�
 - M1: 릴리스 빌드에서 동작 검증 (인스톨러 설치 경로 기준으로 Run 키가 올바른지).
 - M3: 첫 실행 온보딩에서 자동 실행 활성화를 1회 제안 (기본 강제 아님 — 사용자 선택).
 
-### FR3 — 자동 업데이트 (M2)
+### FR3 — 자동 업데이트 (M2) — v0.5.0에서 구현
 
-- `tauri-plugin-updater` 통합, `createUpdaterArtifacts: true`.
-- 엔드포인트: `https://github.com/progh2/codenotch4win/releases/latest/download/latest.json`.
-- minisign 키로 서명 (`TAURI_SIGNING_PRIVATE_KEY` GitHub Actions 시크릿; 공개키는
+- ✅ `tauri-plugin-updater` 통합 (`updater_check.rs`), `createUpdaterArtifacts`는
+  릴리스 전용 오버레이(`tauri.sidecar.conf.json`)에 배치 — 일반 빌드는 키 불필요.
+- ✅ 엔드포인트: `https://github.com/progh2/codenotch4win/releases/latest/download/latest.json`
+  (릴리스 워크플로가 jq로 생성·업로드).
+- ✅ minisign 키로 서명 (`TAURI_SIGNING_PRIVATE_KEY` GitHub Actions 시크릿; 공개키는
   `tauri.conf.json`에 내장). 서명 검증 실패 시 업데이트 미적용.
-- NSIS 인스톨러 설치본만 자동 업데이트. 포터블 exe는 버전 확인 후 알림만
-  (스스로 교체하지 않음).
-- 업데이트 확인 주기: 시작 시 + 24시간 간격. 설정 창에 "지금 확인" 버튼과 끄기 옵션.
+  **개인키 보관: 개발 머신 `~/.tauri/codenotch4win.key` — 분실 시 기존 설치본이
+  업데이트를 받지 못하므로 반드시 백업.**
+- ✅ NSIS 설치본만 자동 업데이트 (판별: exe 옆 uninstall.exe 존재 또는
+  `%LOCALAPPDATA%\Codenotch` 하위). 포터블은 신버전 로그만.
+- ✅ 확인 주기: 시작 시 + 24시간. 설정 창 "지금 확인" 버튼·끄기 옵션은 #6에서 후속.
 
 ### FR4 — 프로바이더 모니터링 (기존 유지, M4 확장)
 

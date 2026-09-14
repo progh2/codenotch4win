@@ -83,7 +83,7 @@ Claude Code 훅, 위치 초기화, 데이터 폴더(`%APPDATA%\codenotch` — �
 | 마일스톤 | 목표 | 상태 |
 |---|---|---|
 | **v0.4.x — 첫 바이너리 릴리스** | GitHub Actions 릴리스 파이프라인; 인스톨러 + 포터블 zip을 Releases에서 다운로드 가능하게 | ✅ 2026-09-14 출시 (v0.4.0; v0.4.1에서 Auth0·엔터프라이즈 Cursor 로그인 수정) |
-| **v0.5.0 — 자동 업데이트** | `tauri-plugin-updater` + 서명된 `latest.json`을 GitHub Releases에 | 다음 작업 |
+| **v0.5.0 — 자동 업데이트** | `tauri-plugin-updater` + 서명된 `latest.json`을 GitHub Releases에 | 구현 완료; 첫 서명 릴리스 대기 |
 | **v0.6.0 — 첫 실행 경험** | 온보딩(자동 실행 켜기 제안), 한국어 번역, Windows 10 검증 | 예정 |
 | **v1.0.0 — 확장** | 프로바이더 추가(Gemini CLI, GitHub Copilot 등), 업스트림 동기화·기여 | 예정; [Grok Bot](../../issues/15)은 v0.4.3에서 조기 출시 |
 
