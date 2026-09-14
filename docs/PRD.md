@@ -12,8 +12,9 @@
 | **v0.4.0** | 첫 바이너리 릴리스 — CI(#1)·릴리스 워크플로(#2) 완성, NSIS 인스톨러 + 포터블 zip 발행 |
 | **v0.4.1** | Cursor Auth0/엔터프라이즈 로그인 수정(#16) — `stripeMembershipAuthId` 부재 시 JWT `sub` 폴백, 엔터프라이즈 used/limit 파싱, headline을 대시보드의 Auto 행과 일치 |
 | **v0.4.2** | doctor에 usage-summary 응답 키 구조 진단 추가 — Grok Bot 버킷(#15) 발견용, 문자열 전부 마스킹 |
+| **v0.4.3** | **Grok Bot 지원**(#15) — Cursor 호버 카드에 주간 사용률 막대. usage-summary에는 버킷이 없음을 진단으로 확인 후, Connect RPC `DashboardService/GetSandUsageStatus`(내부 코드명 "Sand", Bearer 토큰 재사용)로 구현 |
 
-실기 검증(#3): 설치·실행·프로바이더 표시 확인 완료. 남은 것 — 재부팅 후 자동 실행, 포터블 zip 동작 확인.
+실기 검증(#3): 설치·실행·프로바이더 표시(Claude/Codex/Cursor) 확인 완료. 남은 것 — 재부팅 후 자동 실행, 포터블 zip 동작 확인. 발견된 개선점: 업그레이드 설치가 실행 중인 구버전을 종료하지 않아 단일 인스턴스 가드에 막힘(#17, M3).
 
 ## 1. 배경
 
@@ -100,9 +101,10 @@ Rust 툴체인을 깔고 싶지 않고, 사용량 한도가 얼마나 남았는�
 - 기존 4종(Claude, Codex, Cursor, Antigravity) 유지. 프로바이더 코드는 업스트림 추종.
 - Cursor는 Auth0/엔터프라이즈 로그인 폴백 포함 (v0.4.1, 업스트림 #34 이식).
 - M4 확장 후보:
-  - **Grok Bot** (#15): 사용량이 Cursor 계정의 별도 주간 버킷으로 계량 → 기존 Cursor
-    인증 재사용 가능. 업스트림 맥 앱도 미지원이라 자체 개척 영역. v0.4.2의 doctor
-    진단으로 usage-summary 응답에 버킷이 실리는지 확인 중.
+  - **Grok Bot** (#15): ✅ v0.4.3에서 구현 — Cursor 셀 호버 카드에 주간 막대.
+    `POST api2.cursor.sh/aiserver.v1.DashboardService/GetSandUsageStatus`
+    (Bearer = state.vscdb의 액세스 토큰, `Connect-Protocol-Version: 1`, 본문 `{}`).
+    풀드 엔터프라이즈/개인 할당량 없는 계정은 미표시, 실패해도 기본 Cursor 표시 유지.
   - Grok Build CLI: `~/.grok/auth.json` + `cli-chat-proxy.grok.com/v1/billing` —
     맥판(GrokUsage.swift)에 응답 포맷 문서화됨, 포팅 난이도 낮음.
   - Gemini CLI, GitHub Copilot (macOS 원본에 소스 로직 존재 → 포팅 참고).
@@ -175,5 +177,5 @@ Rust 툴체인을 깔고 싶지 않고, 사용량 한도가 얼마나 남았는�
 - 포터블 zip의 신버전 알림 구현 방식 (updater 플러그인의 check-only 사용 vs GitHub API 직접 조회) — M2에서 결정.
 - 온보딩에서 자동 실행 기본값을 "제안"으로 할지 "기본 켬 + 옵트아웃"으로 할지 — M3에서 결정.
 - 프로젝트 독자 이름(codenotch4win) 유지 vs 업스트림 병합 후 통합 — M4에서 업스트림과 논의.
-- **Grok Bot 주간 버킷이 실려 오는 엔드포인트** (#15) — 조사 중: v0.4.2 doctor의
-  usage-summary 키 구조 진단으로 확인, 없으면 cursor.com 대시보드 XHR 추적으로 2단계.
+- ~~Grok Bot 주간 버킷이 실려 오는 엔드포인트~~ — 해결(v0.4.3): usage-summary에 없음을
+  확인 후 `GetSandUsageStatus` Connect RPC로 구현.
