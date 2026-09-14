@@ -1,6 +1,6 @@
 # Codenotch for Windows (codenotch4win)
 
-[한국어 README](README.ko.md) · [PRD (Korean)](docs/PRD.md)
+[한국어 README](README.ko.md) · [PRD (Korean)](docs/PRD.md) · [Landing page](https://progh2.github.io/codenotch4win/)
 
 A Windows build of [Codenotch](https://github.com/vinzdg/codenotch) — the usage notch that
 sits on the edge of your screen and answers two questions at a glance:
