@@ -31,6 +31,11 @@ use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use tauri::{AppHandle, Emitter, Manager};
 
 const ENDPOINT: &str = "https://cursor.com/api/usage-summary";
+/// Grok Bot is Cursor's "Sand" product: its own weekly allowance with its own reset,
+/// served by the dashboard's Connect RPC rather than usage-summary (endpoint and
+/// response shape per mstallone/runway#115).
+const SAND_ENDPOINT: &str =
+    "https://api2.cursor.sh/aiserver.v1.DashboardService/GetSandUsageStatus";
 const POLL_SECS: u64 = 300;
 
 static REFRESH: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
@@ -114,6 +119,8 @@ fn item(conn: &rusqlite::Connection, key: &str) -> Option<String> {
 
 struct Creds {
     cookie: String,
+    /// Raw access token — the Connect RPC endpoints take it as a Bearer header
+    token: String,
     plan: Option<String>,
 }
 
@@ -169,7 +176,7 @@ fn read_credentials() -> Option<Creds> {
     let token = item(&conn, "cursorAuth/accessToken")?;
     let auth_id = item(&conn, "cursorAuth/stripeMembershipAuthId").or_else(|| jwt_sub(&token))?;
     let plan = item(&conn, "cursorAuth/stripeMembershipType");
-    Some(Creds { cookie: format!("WorkosCursorSessionToken={auth_id}::{token}"), plan })
+    Some(Creds { cookie: format!("WorkosCursorSessionToken={auth_id}::{token}"), token, plan })
 }
 
 /// For doctor: contains no secret values
@@ -216,11 +223,16 @@ pub fn probe_summary() -> String {
     let Some(creds) = read_credentials() else {
         return "Cursor summary: no session to borrow".into();
     };
-    match fetch_once(&creds.cookie) {
+    let summary = match fetch_once(&creds.cookie) {
         Ok(v) => format!("Cursor usage-summary shape: {}", redact_shape(&v)),
         Err(FetchErr::NeedsAuth) => "Cursor summary: session rejected (401/403)".into(),
         Err(FetchErr::Other(m)) => format!("Cursor summary: {m}"),
-    }
+    };
+    let sand = match fetch_sand(&creds.token) {
+        Ok(v) => format!("Grok Bot (GetSandUsageStatus) shape: {}", redact_shape(&v)),
+        Err(m) => format!("Grok Bot (GetSandUsageStatus): {m}"),
+    };
+    format!("{summary}\n  {sand}")
 }
 
 // ---------------- Parsing ----------------
@@ -299,6 +311,47 @@ pub fn parse_summary(v: &serde_json::Value) -> (Vec<LimitWindow>, String) {
     (out, note)
 }
 
+/// GetSandUsageStatus reply → the Grok Bot weekly window. Pooled enterprise seats and
+/// accounts without a personal included allowance have no separate meter and return None
+/// (guards mirror mstallone/runway#115).
+pub fn parse_sand(v: &serde_json::Value) -> Option<LimitWindow> {
+    let flag = |k: &str| v.get(k).and_then(|x| x.as_bool());
+    if flag("usesPooledEnterpriseAllowance") == Some(true)
+        || flag("hasNonZeroIncludedLimit") == Some(false)
+        || flag("includedLimitZero") == Some(true)
+    {
+        return None;
+    }
+    let percent = v.get("usagePercent").and_then(|x| x.as_f64()).filter(|p| *p >= 0.0)?;
+    Some(LimitWindow {
+        id: "grok_bot".into(),
+        label: "Grok Bot".into(),
+        used: (percent / 100.0).clamp(0.0, 1.0),
+        resets_at: parse_iso(v.get("nextResetTimestampUtc")),
+        ..Default::default()
+    })
+}
+
+fn fetch_sand(token: &str) -> Result<serde_json::Value, String> {
+    let agent = ureq::AgentBuilder::new().timeout(Duration::from_secs(10)).build();
+    agent
+        .post(SAND_ENDPOINT)
+        .set("Authorization", &format!("Bearer {token}"))
+        .set("Content-Type", "application/json")
+        .set("Connect-Protocol-Version", "1")
+        .send_string("{}")
+        .map_err(|e| match e {
+            ureq::Error::Status(code, _) => format!("HTTP {code}"),
+            other => format!("{other}"),
+        })
+        .and_then(|r| r.into_json::<serde_json::Value>().map_err(|e| format!("parse: {e}")))
+}
+
+/// Nonfatal: a Grok Bot failure never drops the primary Cursor windows
+fn fetch_grok_bot(token: &str) -> Option<LimitWindow> {
+    fetch_sand(token).ok().and_then(|v| parse_sand(&v))
+}
+
 enum FetchErr {
     NeedsAuth,
     Other(String),
@@ -331,7 +384,10 @@ fn read_once(prev: &UsageSnapshot) -> UsageSnapshot {
     };
     match fetch_once(&creds.cookie) {
         Ok(v) => {
-            let (windows, note) = parse_summary(&v);
+            let (mut windows, note) = parse_summary(&v);
+            if let Some(gb) = fetch_grok_bot(&creds.token) {
+                windows.push(gb);
+            }
             snap.fetched_at = now_ms();
             if windows.is_empty() {
                 snap.status = "none".into();
@@ -427,6 +483,29 @@ mod tests {
         assert_eq!(w[0].label, "Auto usage");
         assert!((w[0].used - 0.20).abs() < 1e-9);
         assert_eq!(w[1].label, "API usage");
+    }
+
+    #[test]
+    fn sand_maps_weekly_window() {
+        let v = serde_json::json!({
+            "usagePercent": 41.5,
+            "currentPeriodStart": "2026-09-08T00:00:00Z",
+            "nextResetTimestampUtc": "2026-09-15T00:00:00Z"
+        });
+        let w = parse_sand(&v).unwrap();
+        assert_eq!(w.label, "Grok Bot");
+        assert!((w.used - 0.415).abs() < 1e-9);
+        assert!(w.resets_at.is_some());
+    }
+
+    #[test]
+    fn sand_hides_pooled_and_no_allowance() {
+        let pooled = serde_json::json!({ "usagePercent": 10.0, "usesPooledEnterpriseAllowance": true });
+        assert!(parse_sand(&pooled).is_none());
+        let zero = serde_json::json!({ "usagePercent": 10.0, "includedLimitZero": true });
+        assert!(parse_sand(&zero).is_none());
+        let no_pct = serde_json::json!({ "nextResetTimestampUtc": "2026-09-15T00:00:00Z" });
+        assert!(parse_sand(&no_pct).is_none());
     }
 
     #[test]
