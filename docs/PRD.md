@@ -1,9 +1,19 @@
 # PRD — Codenotch for Windows (codenotch4win)
 
-- 작성일: 2026-09-14
+- 작성일: 2026-09-14 · 최종 갱신: 2026-09-14
 - 작성자: progh2 (with Claude)
-- 상태: v1 — 승인됨, M1 진행 중
+- 상태: v1.1 — M1 완료 (v0.4.0~v0.4.2 출시), M2 대기
 - 관련 문서: [README](../README.md) · [README.ko](../README.ko.md)
+
+## 진행 현황 (2026-09-14 기준)
+
+| 릴리스 | 내용 |
+|---|---|
+| **v0.4.0** | 첫 바이너리 릴리스 — CI(#1)·릴리스 워크플로(#2) 완성, NSIS 인스톨러 + 포터블 zip 발행 |
+| **v0.4.1** | Cursor Auth0/엔터프라이즈 로그인 수정(#16) — `stripeMembershipAuthId` 부재 시 JWT `sub` 폴백, 엔터프라이즈 used/limit 파싱, headline을 대시보드의 Auto 행과 일치 |
+| **v0.4.2** | doctor에 usage-summary 응답 키 구조 진단 추가 — Grok Bot 버킷(#15) 발견용, 문자열 전부 마스킹 |
+
+실기 검증(#3): 설치·실행·프로바이더 표시 확인 완료. 남은 것 — 재부팅 후 자동 실행, 포터블 zip 동작 확인.
 
 ## 1. 배경
 
@@ -88,7 +98,14 @@ Rust 툴체인을 깔고 싶지 않고, 사용량 한도가 얼마나 남았는�
 ### FR4 — 프로바이더 모니터링 (기존 유지, M4 확장)
 
 - 기존 4종(Claude, Codex, Cursor, Antigravity) 유지. 프로바이더 코드는 업스트림 추종.
-- M4 확장 후보: Gemini CLI, GitHub Copilot (macOS 원본에 소스 로직 존재 → 포팅 참고).
+- Cursor는 Auth0/엔터프라이즈 로그인 폴백 포함 (v0.4.1, 업스트림 #34 이식).
+- M4 확장 후보:
+  - **Grok Bot** (#15): 사용량이 Cursor 계정의 별도 주간 버킷으로 계량 → 기존 Cursor
+    인증 재사용 가능. 업스트림 맥 앱도 미지원이라 자체 개척 영역. v0.4.2의 doctor
+    진단으로 usage-summary 응답에 버킷이 실리는지 확인 중.
+  - Grok Build CLI: `~/.grok/auth.json` + `cli-chat-proxy.grok.com/v1/billing` —
+    맥판(GrokUsage.swift)에 응답 포맷 문서화됨, 포팅 난이도 낮음.
+  - Gemini CLI, GitHub Copilot (macOS 원본에 소스 로직 존재 → 포팅 참고).
 
 ### FR5 — 한국어 (M3)
 
@@ -110,10 +127,15 @@ Rust 툴체인을 깔고 싶지 않고, 사용량 한도가 얼마나 남았는�
 
 - **스택:** Rust + Tauri 2 / WebView2 (기존 포트 그대로). 워크스페이스:
   `codenotch/` (앱) + `codenotch-hook/` (Claude Code 훅 헬퍼).
-- **릴리스 파이프라인:** `.github/workflows/release.yml` —
-  `on: push: tags: ['v*']` → `windows-latest` → Rust 캐시 → `cargo tauri build`
-  (NSIS + updater 아티팩트) → portable exe 복사·리네임 → `latest.json` 생성 →
-  `gh release create` 로 자산 업로드.
+- **릴리스 파이프라인 (구현됨):** `.github/workflows/release.yml` —
+  `on: push: tags: ['v*']` → `windows-latest` → 태그·버전 일치 검사 → hook 헬퍼 빌드 후
+  사이드카 스테이징 → `cargo tauri build --config tauri.sidecar.conf.json` → 인스톨러 +
+  포터블 zip(메인 exe + codenotch-hook.exe) → `gh release create`. M2에서 updater
+  아티팩트(`latest.json`) 추가 예정.
+- **사이드카 교훈:** `externalBin`을 `tauri.conf.json`에 두면 tauri-build가 컴파일
+  시점에 파일 존재를 검사해 일반 `cargo check`가 깨짐 → 릴리스 빌드에서만
+  `--config tauri.sidecar.conf.json` 오버레이로 병합. `hooks_install.rs`는
+  `codenotch-hook.exe`가 메인 exe 옆에 있길 기대하므로 두 배포 형태 모두 포함.
 - **CI:** `.github/workflows/ci.yml` — PR/main 푸시 시 `cargo check --workspace` +
   `cargo test --workspace` + `cargo fmt --check`.
 - **버전 관리:** `codenotch/Cargo.toml` + `tauri.conf.json` 의 버전을 태그와 일치시킴
@@ -126,7 +148,7 @@ Rust 툴체인을 깔고 싶지 않고, 사용량 한도가 얼마나 남았는�
 
 | 마일스톤 | 버전 | 내용 | 완료 기준 |
 |---|---|---|---|
-| **M1 첫 배포판** | v0.4.0 | CI + 릴리스 워크플로, 첫 바이너리 릴리스 | Releases에서 exe를 받아 윈도우에서 실행 성공 |
+| **M1 첫 배포판** ✅ | v0.4.x | CI + 릴리스 워크플로, 첫 바이너리 릴리스 | ✅ Releases에서 받은 인스톨러로 실행·프로바이더 표시 확인 (2026-09-14) |
 | **M2 자동 업데이트** | v0.5.0 | updater 통합, 서명, latest.json | v0.5.0 설치본이 v0.5.1로 자동 업데이트되는 E2E 확인 |
 | **M3 첫 실행 경험** | v0.6.0 | 온보딩(자동 실행 제안), 한국어 UI, Win10 검증 | 새 사용자가 문서 없이 설치→자동실행 설정 완료; UI 한국어 표시 |
 | **M4 확장** | v1.0.0 | 프로바이더 추가, 업스트림 기여, 문서 정비 | 신규 프로바이더 1종 이상 동작; 업스트림 PR 제출 |
@@ -150,6 +172,8 @@ Rust 툴체인을 깔고 싶지 않고, 사용량 한도가 얼마나 남았는�
 
 ## 10. 미해결 질문
 
-- 포터블 exe의 신버전 알림 구현 방식 (updater 플러그인의 check-only 사용 vs GitHub API 직접 조회) — M2에서 결정.
+- 포터블 zip의 신버전 알림 구현 방식 (updater 플러그인의 check-only 사용 vs GitHub API 직접 조회) — M2에서 결정.
 - 온보딩에서 자동 실행 기본값을 "제안"으로 할지 "기본 켬 + 옵트아웃"으로 할지 — M3에서 결정.
 - 프로젝트 독자 이름(codenotch4win) 유지 vs 업스트림 병합 후 통합 — M4에서 업스트림과 논의.
+- **Grok Bot 주간 버킷이 실려 오는 엔드포인트** (#15) — 조사 중: v0.4.2 doctor의
+  usage-summary 키 구조 진단으로 확인, 없으면 cursor.com 대시보드 XHR 추적으로 2단계.

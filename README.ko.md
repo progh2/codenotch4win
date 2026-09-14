@@ -27,17 +27,14 @@ macOS 원본과 같은 디자인 언어(역방향 라운드 필, 색상 그라�
 |---|---|---|
 | **Claude** | Claude Code가 `~/.claude/.credentials.json`에 보관하는 토큰으로 `GET https://api.anthropic.com/api/oauth/usage` 호출 | 세션/주간 윈도우, 429 백오프, 오래된 값은 흐리게 표시. Claude 세션이 작업 중이면 링 안에 얇은 호가 회전하고, 입력을 기다리면 주황색으로 맥박. |
 | **Codex** | `~/.codex/auth.json`의 로컬 로그인(읽기 전용), 없으면 최신 세션 스냅샷 | 유료 플랜은 5시간 + 주간, 무료는 월간 윈도우를 실시간 표시. |
-| **Cursor** | 에디터 자체 세션(`state.vscdb`) → `cursor.com/api/usage-summary` | 포함 사용량 / API 사용량 / 온디맨드, 결제 주기 말 리셋. |
+| **Cursor** | 에디터 자체 세션(`state.vscdb`) → `cursor.com/api/usage-summary` | Auto 사용량(대시보드 행) / API 사용량 / 온디맨드, 결제 주기 말 리셋. v0.4.1부터 Auth0·엔터프라이즈 로그인 지원(계정 ID를 토큰 JWT `sub`로 폴백). |
 | **Antigravity** | 공식 `agy` CLI의 `/usage` 출력(설치 시), 없으면 로컬 `language_server` 브리지 | IDE를 켜지 않고도 공식 쿼터(Gemini & Claude/GPT, 5시간/주간) 표시. |
 
 설치되지 않은 프로바이더는 셀 자체가 나타나지 않습니다.
 
 ## 설치
 
-> **현재 상태:** 첫 바이너리 릴리스는 마일스톤 [M1](../../milestones)에서 진행 중입니다.
-> 그 전까지는 아래의 소스 빌드를 이용하세요.
-
-[Releases](../../releases) 페이지에 두 가지 형태로 배포됩니다:
+[Releases](../../releases) 페이지에서 최신 버전을 받으세요 — 두 가지 형태:
 
 - **`Codenotch-Setup-x.y.z.exe`** (NSIS 인스톨러) — 권장. 사용자별 설치(관리자 권한 불필요)이며
   **자동 업데이트 채널**입니다: 앱이 GitHub Releases를 확인해 스스로 업데이트합니다.
@@ -47,6 +44,14 @@ macOS 원본과 같은 디자인 언어(역방향 라운드 필, 색상 그라�
 
 요구사항: Windows 10/11 + WebView2 런타임 (Windows 11은 기본 내장, Windows 10은
 인스톨러가 자동 설치).
+
+아직 코드 서명이 없어 첫 실행 시 SmartScreen 경고가 뜹니다: **추가 정보 → 실행**을
+선택하세요. 자동 업데이트(마일스톤 v0.5.0)가 들어오면 이 과정은 최초 1회로 끝납니다.
+
+각 프로바이더 셀은 해당 도구의 CLI/에디터가 컴퓨터에 보관하는 자격증명을 읽습니다 —
+셀에 *sign in*이나 *credential expired*가 보이면 그 도구에 로그인하거나 한 번 실행하면
+셀이 살아납니다. `codenotch.exe doctor`가 프로바이더별로 무엇을 찾았는지 정확히
+알려줍니다.
 
 ## 소스 빌드
 
@@ -75,12 +80,12 @@ Claude Code 훅, 위치 초기화, 데이터 폴더(`%APPDATA%\codenotch` — �
 
 [이슈](../../issues)와 [마일스톤](../../milestones)으로 진행합니다:
 
-| 마일스톤 | 목표 |
-|---|---|
-| **v0.4.0 — 첫 바이너리 릴리스** | GitHub Actions 릴리스 파이프라인; 인스톨러 + 포터블 exe를 Releases에서 다운로드 가능하게 |
-| **v0.5.0 — 자동 업데이트** | `tauri-plugin-updater` + 서명된 `latest.json`을 GitHub Releases에 |
-| **v0.6.0 — 첫 실행 경험** | 온보딩(자동 실행 켜기 제안), 한국어 번역, Windows 10 검증 |
-| **v1.0.0 — 확장** | 프로바이더 추가(Gemini CLI, GitHub Copilot 등), 업스트림 동기화·기여 |
+| 마일스톤 | 목표 | 상태 |
+|---|---|---|
+| **v0.4.x — 첫 바이너리 릴리스** | GitHub Actions 릴리스 파이프라인; 인스톨러 + 포터블 zip을 Releases에서 다운로드 가능하게 | ✅ 2026-09-14 출시 (v0.4.0; v0.4.1에서 Auth0·엔터프라이즈 Cursor 로그인 수정) |
+| **v0.5.0 — 자동 업데이트** | `tauri-plugin-updater` + 서명된 `latest.json`을 GitHub Releases에 | 다음 작업 |
+| **v0.6.0 — 첫 실행 경험** | 온보딩(자동 실행 켜기 제안), 한국어 번역, Windows 10 검증 | 예정 |
+| **v1.0.0 — 확장** | 프로바이더 추가([Grok Bot](../../issues/15), Gemini CLI, GitHub Copilot 등), 업스트림 동기화·기여 | 예정; Grok Bot 엔드포인트 조사 진행 중 |
 
 ## 업스트림과의 관계
 
