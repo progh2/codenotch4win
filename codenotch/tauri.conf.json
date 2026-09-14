@@ -43,7 +43,6 @@
   "bundle": {
     "active": true,
     "targets": ["nsis"],
-    "icon": ["icons/icon.ico"],
-    "externalBin": ["binaries/codenotch-hook"]
+    "icon": ["icons/icon.ico"]
   }
 }

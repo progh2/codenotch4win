@@ -38,7 +38,10 @@ jobs:
         run: cargo binstall --no-confirm --locked tauri-cli@^2
 
       # hooks_install.rs expects codenotch-hook.exe next to codenotch.exe, so the
-      # hook helper ships inside the installer as a Tauri sidecar (externalBin).
+      # hook helper ships inside the installer as a Tauri sidecar. The externalBin
+      # entry lives in tauri.sidecar.conf.json (merged via --config) because
+      # tauri-build verifies the sidecar file at compile time, which would break
+      # plain `cargo check`/`cargo build` where nothing stages it.
       - name: Build hook helper and stage sidecar
         shell: bash
         run: |
@@ -50,7 +53,7 @@ jobs:
       - name: Build app (NSIS installer)
         shell: bash
         working-directory: codenotch
-        run: cargo tauri build
+        run: cargo tauri build --config tauri.sidecar.conf.json
 
       - name: Assemble release assets
         shell: bash
