@@ -18,6 +18,7 @@ mod glyphs;
 mod trayicon;
 mod activity;
 mod diag;
+mod updater_check;
 mod watcher;
 
 use std::sync::Mutex;
@@ -1115,6 +1116,7 @@ fn main() {
     let port = cfg.port;
 
     tauri::Builder::default()
+        .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
             // Launching a freshly built exe while the old one is still running lands here: the new
             // instance is turned away and what stays on screen is the old process. Say so loudly.
@@ -1201,6 +1203,7 @@ fn main() {
             cursor::start(handle.clone());
             antigravity::start(handle.clone());
             activity::start(handle.clone());
+            updater_check::start(handle.clone());
             // Collecting glyphs may read icon resources out of a few executables; do it off the main thread and push when done
             let gh = handle.clone();
             std::thread::spawn(move || reload_glyphs(&gh));

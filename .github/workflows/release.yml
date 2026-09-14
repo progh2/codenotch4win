@@ -50,9 +50,12 @@ jobs:
           cp target/release/codenotch-hook.exe \
              codenotch/binaries/codenotch-hook-x86_64-pc-windows-msvc.exe
 
-      - name: Build app (NSIS installer)
+      - name: Build app (NSIS installer, signed updater artifacts)
         shell: bash
         working-directory: codenotch
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         run: cargo tauri build --config tauri.sidecar.conf.json
 
       - name: Assemble release assets
@@ -64,6 +67,17 @@ jobs:
           SETUP=$(find target/release/bundle/nsis -name '*-setup.exe' | head -n1)
           [ -n "$SETUP" ] || { echo "::error::NSIS installer not found"; exit 1; }
           cp "$SETUP" "dist/Codenotch-Setup-$VERSION.exe"
+
+          # Updater manifest: the plugin fetches latest.json from the latest release
+          # and verifies the minisign signature created during the build.
+          [ -f "$SETUP.sig" ] || { echo "::error::updater signature not found (TAURI_SIGNING_PRIVATE_KEY secret missing?)"; exit 1; }
+          jq -n \
+            --arg version "$VERSION" \
+            --arg date "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            --arg sig "$(cat "$SETUP.sig")" \
+            --arg url "https://github.com/$GITHUB_REPOSITORY/releases/download/v$VERSION/Codenotch-Setup-$VERSION.exe" \
+            '{version: $version, pub_date: $date, platforms: {"windows-x86_64": {signature: $sig, url: $url}}}' \
+            > dist/latest.json
 
           # Tauri may rename the main binary to the productName; accept either.
           MAIN_EXE=$(find target/release -maxdepth 1 -iname 'codenotch.exe' | head -n1)
@@ -86,4 +100,5 @@ jobs:
             --title "Codenotch for Windows $GITHUB_REF_NAME" \
             --generate-notes \
             "dist/Codenotch-Setup-$VERSION.exe#Codenotch-Setup-$VERSION.exe (installer, recommended)" \
-            "dist/codenotch-$VERSION-portable.zip#codenotch-$VERSION-portable.zip (portable)"
+            "dist/codenotch-$VERSION-portable.zip#codenotch-$VERSION-portable.zip (portable)" \
+            "dist/latest.json#latest.json (updater manifest)"
