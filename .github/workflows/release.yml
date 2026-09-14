@@ -1,0 +1,86 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  build-release:
+    name: Build & publish Windows release
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify tag matches crate and Tauri versions
+        shell: bash
+        run: |
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          CARGO_VERSION=$(grep -m1 '^version = ' codenotch/Cargo.toml | sed 's/version = "\(.*\)"/\1/')
+          TAURI_VERSION=$(python -c "import json; print(json.load(open('codenotch/tauri.conf.json'))['version'])")
+          echo "tag=$TAG_VERSION cargo=$CARGO_VERSION tauri=$TAURI_VERSION"
+          if [ "$TAG_VERSION" != "$CARGO_VERSION" ] || [ "$TAG_VERSION" != "$TAURI_VERSION" ]; then
+            echo "::error::Tag v$TAG_VERSION does not match Cargo.toml ($CARGO_VERSION) or tauri.conf.json ($TAURI_VERSION)"
+            exit 1
+          fi
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Install tauri-cli
+        uses: cargo-bins/cargo-binstall@main
+
+      - name: Install tauri-cli (binary)
+        shell: bash
+        run: cargo binstall --no-confirm --locked tauri-cli@^2
+
+      # hooks_install.rs expects codenotch-hook.exe next to codenotch.exe, so the
+      # hook helper ships inside the installer as a Tauri sidecar (externalBin).
+      - name: Build hook helper and stage sidecar
+        shell: bash
+        run: |
+          cargo build --release -p codenotch-hook
+          mkdir -p codenotch/binaries
+          cp target/release/codenotch-hook.exe \
+             codenotch/binaries/codenotch-hook-x86_64-pc-windows-msvc.exe
+
+      - name: Build app (NSIS installer)
+        shell: bash
+        working-directory: codenotch
+        run: cargo tauri build
+
+      - name: Assemble release assets
+        shell: bash
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          mkdir -p dist
+
+          SETUP=$(find target/release/bundle/nsis -name '*-setup.exe' | head -n1)
+          [ -n "$SETUP" ] || { echo "::error::NSIS installer not found"; exit 1; }
+          cp "$SETUP" "dist/Codenotch-Setup-$VERSION.exe"
+
+          # Tauri may rename the main binary to the productName; accept either.
+          MAIN_EXE=$(find target/release -maxdepth 1 -iname 'codenotch.exe' | head -n1)
+          [ -n "$MAIN_EXE" ] || { echo "::error::main exe not found"; exit 1; }
+          mkdir -p portable
+          cp "$MAIN_EXE" portable/Codenotch.exe
+          cp target/release/codenotch-hook.exe portable/codenotch-hook.exe
+          printf 'Codenotch for Windows (portable)\r\n\r\nRun Codenotch.exe. Keep codenotch-hook.exe in the same folder\r\n(it powers Claude Code session detection).\r\nThe portable build does not auto-update: watch the Releases page.\r\n\r\nhttps://github.com/progh2/codenotch4win\r\n' > portable/README.txt
+          (cd portable && 7z a "../dist/codenotch-$VERSION-portable.zip" .)
+
+          ls -la dist
+
+      - name: Create GitHub release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          gh release create "$GITHUB_REF_NAME" \
+            --title "Codenotch for Windows $GITHUB_REF_NAME" \
+            --generate-notes \
+            "dist/Codenotch-Setup-$VERSION.exe#Codenotch-Setup-$VERSION.exe (installer, recommended)" \
+            "dist/codenotch-$VERSION-portable.zip#codenotch-$VERSION-portable.zip (portable)"

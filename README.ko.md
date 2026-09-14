@@ -41,7 +41,8 @@ macOS 원본과 같은 디자인 언어(역방향 라운드 필, 색상 그라�
 
 - **`Codenotch-Setup-x.y.z.exe`** (NSIS 인스톨러) — 권장. 사용자별 설치(관리자 권한 불필요)이며
   **자동 업데이트 채널**입니다: 앱이 GitHub Releases를 확인해 스스로 업데이트합니다.
-- **`codenotch-x.y.z-portable.exe`** — 단일 포터블 실행 파일. 아무 데서나 실행 가능.
+- **`codenotch-x.y.z-portable.zip`** — 포터블 빌드. 압축을 풀고 `Codenotch.exe`를 실행하면
+  됩니다 (Claude Code 세션 감지용 `codenotch-hook.exe`가 함께 들어 있음).
   자동 업데이트는 없고, 새 버전이 나오면 알림만 표시합니다.
 
 요구사항: Windows 10/11 + WebView2 런타임 (Windows 11은 기본 내장, Windows 10은

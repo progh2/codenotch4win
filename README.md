@@ -41,7 +41,8 @@ Two flavours will be published on the [Releases](../../releases) page:
 
 - **`Codenotch-Setup-x.y.z.exe`** (NSIS installer) — recommended. Installs per-user (no admin),
   and is the **auto-update channel**: the app checks GitHub Releases and updates itself.
-- **`codenotch-x.y.z-portable.exe`** — single portable executable, run from anywhere.
+- **`codenotch-x.y.z-portable.zip`** — portable build, run from anywhere: unzip and start
+  `Codenotch.exe` (`codenotch-hook.exe` ships alongside it for Claude Code session detection).
   No auto-update; it notifies you when a new version is available.
 
 Requirements: Windows 10/11 with the WebView2 runtime (preinstalled on Windows 11;
