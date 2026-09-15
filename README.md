@@ -86,7 +86,7 @@ Work is tracked with [issues](../../issues) and [milestones](../../milestones):
 |---|---|---|
 | **v0.4.x — First binary release** | GitHub Actions release pipeline; installer + portable zip downloadable from Releases | ✅ Shipped 2026-09-14 (v0.4.0; v0.4.1 fixed Auth0/enterprise Cursor sign-ins) |
 | **v0.5.0 — Auto-update** | `tauri-plugin-updater` + signed `latest.json` on GitHub Releases | Implemented; first signed release pending |
-| **v0.6.0 — First-run experience** | Onboarding (offer autostart), Korean localization, Windows 10 verification | Planned |
+| **v0.6.0 — First-run experience** | Onboarding (offer autostart), Korean localization, Windows 10 verification | Mostly landed early in v0.5.0 (autostart offer, Korean UI, installer closes the old build); Windows 10 verification remains |
 | **v1.0.0 — Expansion** | More providers (Gemini CLI, GitHub Copilot, …), upstream sync & contribution | Planned; [Grok Bot](../../issues/15) already shipped early in v0.4.3 |
 
 ## Relationship to upstream
