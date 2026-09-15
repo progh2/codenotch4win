@@ -41,6 +41,62 @@ pub fn enable() -> Result<String, String> {
     }
 }
 
+/// First-run onboarding: offer — never force — starting with Windows (PRD FR2).
+/// Asked exactly once; the answer is remembered in the config either way, and the
+/// switch stays available in Settings and the tray menu.
+pub fn offer_on_first_run(app: &tauri::AppHandle) {
+    use tauri::Manager;
+    let app = app.clone();
+    std::thread::spawn(move || {
+        let st = app.state::<crate::AppState>();
+        let lang = {
+            let cfg = st.cfg.lock().unwrap();
+            if cfg.autostart_offered {
+                return;
+            }
+            cfg.lang.clone()
+        };
+        // An existing Run entry means the question is already answered
+        if !is_enabled()
+            && ask_yes_no(
+                crate::i18n::tr(&lang, "autostart_offer_title"),
+                crate::i18n::tr(&lang, "autostart_offer"),
+            )
+        {
+            match enable() {
+                Ok(m) => crate::applog(&format!("onboarding: {m}")),
+                Err(e) => crate::applog(&format!("onboarding: autostart failed: {e}")),
+            }
+        }
+        let mut cfg = st.cfg.lock().unwrap();
+        cfg.autostart_offered = true;
+        crate::config::save(&cfg);
+    });
+}
+
+#[cfg(windows)]
+fn ask_yes_no(title: &str, text: &str) -> bool {
+    use windows::core::PCWSTR;
+    use windows::Win32::UI::WindowsAndMessaging::{
+        MessageBoxW, IDYES, MB_ICONQUESTION, MB_TOPMOST, MB_YESNO,
+    };
+    let title: Vec<u16> = title.encode_utf16().chain([0]).collect();
+    let text: Vec<u16> = text.encode_utf16().chain([0]).collect();
+    unsafe {
+        MessageBoxW(
+            None,
+            PCWSTR(text.as_ptr()),
+            PCWSTR(title.as_ptr()),
+            MB_YESNO | MB_ICONQUESTION | MB_TOPMOST,
+        ) == IDYES
+    }
+}
+
+#[cfg(not(windows))]
+fn ask_yes_no(_title: &str, _text: &str) -> bool {
+    false
+}
+
 pub fn disable() -> Result<String, String> {
     match reg(&["delete", RUN_KEY, "/v", NAME, "/f"]) {
         Some((true, _)) => Ok("start at sign-in disabled".into()),

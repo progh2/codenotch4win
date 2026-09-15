@@ -30,6 +30,9 @@ pub struct Config {
     /// Allow dragging + wheel resizing (tray toggle, off by default to prevent accidental drags)
     #[serde(default)]
     pub drag_enabled: bool,
+    /// First-run onboarding asked about starting with Windows (asked once, either answer)
+    #[serde(default)]
+    pub autostart_offered: bool,
     /// Vertical position of the notch: the window centre as a fraction of the primary monitor's height (0 = top, 1 = bottom), default 0.5; saved after a drag
     #[serde(default = "default_notch_y")]
     pub notch_y: f64,

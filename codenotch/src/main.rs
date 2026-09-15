@@ -1204,6 +1204,7 @@ fn main() {
             antigravity::start(handle.clone());
             activity::start(handle.clone());
             updater_check::start(handle.clone());
+            autostart::offer_on_first_run(&handle);
             // Collecting glyphs may read icon resources out of a few executables; do it off the main thread and push when done
             let gh = handle.clone();
             std::thread::spawn(move || reload_glyphs(&gh));

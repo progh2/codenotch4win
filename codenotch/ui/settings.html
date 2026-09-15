@@ -540,12 +540,113 @@ const RU_STATIC = {
   'Notch size':'Размер панели', 'Codenotch':'Codenotch', 'Tray icon preview':'Предпросмотр значка', 'Codenotch logo':'Логотип Codenotch', 'Tray icon at':'Значок размером', 'pixels':'пикселей',
   'Down the right-hand edge':'У правого края', 'Down the left-hand edge':'У левого края', 'Top half':'Верхняя половина', 'Bottom half':'Нижняя половина', 'Column':'Столбец', 'Remove column':'Удалить столбец'
 };
+const KO_STATIC = {
+  'Settings sections':'설정 목차',
+  'Appearance':'모양',
+  'Taskbar icon':'작업표시줄 아이콘',
+  'Notch':'노치',
+  'General':'일반',
+  'Behaviour':'동작',
+  'Claude Code':'Claude Code',
+  'About':'정보',
+  'The small icon down by the clock. Codenotch draws your usage straight into it — 32 pixels square. Pick a layout, then click a part of the picture to choose what that part shows.':'시계 옆의 작은 아이콘입니다. Codenotch가 사용량을 32픽셀 정사각형 안에 직접 그립니다. 배치를 고른 뒤 그림의 각 부분을 클릭해 표시할 내용을 선택하세요.',
+  'Layout':'배치',
+  'What gets drawn into those 32 pixels.':'이 32픽셀에 무엇을 그릴지 정합니다.',
+  'The plain Codenotch logo is used.':'기본 Codenotch 로고를 사용합니다.',
+  'No numbers are drawn.':'숫자는 표시되지 않습니다.',
+  'Actual size':'실제 크기',
+  'This is how big it really is in the taskbar.':'작업표시줄에서 실제로 이 크기로 보입니다.',
+  'Windows picks one of these depending on the display. If a number is unreadable here, it will be unreadable in the taskbar.':'디스플레이에 따라 Windows가 이 중 하나를 사용합니다. 여기서 숫자가 안 읽히면 작업표시줄에서도 안 읽힙니다.',
+  'What each part shows':'각 부분이 보여주는 것',
+  'Pick the tool; each part draws that tool\'s ring.':'도구를 선택하면 각 부분에 그 도구의 링이 그려집니다.',
+  'The small black pill that floats against the right-hand edge of the screen. Each tool you tick gets one ring on it.':'화면 오른쪽 가장자리에 떠 있는 작은 검은 알약입니다. 체크한 도구마다 링이 하나씩 생깁니다.',
+  'What appears on the pill':'알약에 표시되는 것',
+  'Click a name to switch its ring on or off.':'이름을 클릭해 링을 켜거나 끕니다.',
+  'Size':'크기',
+  'How big the pill is drawn. The same slider sits at the foot of the pill\'s hover card, so it can be changed from either place.':'알약이 그려지는 크기입니다. 같은 슬라이더가 호버 카드 하단에도 있어 어느 쪽에서든 바꿀 수 있습니다.',
+  'Whether the pill is on screen at all is a separate switch, under General → Behaviour.':'알약 자체를 화면에 표시할지는 일반 → 동작의 별도 스위치로 정합니다.',
+  'When Codenotch runs, and what it puts on your screen.':'Codenotch가 언제 실행되고 화면에 무엇을 표시할지 정합니다.',
+  'Starting up':'시작',
+  'Start with Windows':'Windows 시작 시 자동 실행',
+  'Codenotch opens by itself every time you sign in to this computer, and waits quietly in the background until a coding session starts. Turn it off and you have to open Codenotch yourself.':'이 컴퓨터에 로그인할 때마다 Codenotch가 스스로 실행되어 코딩 세션이 시작될 때까지 조용히 대기합니다. 끄면 직접 실행해야 합니다.',
+  'What is on screen':'화면에 표시되는 것',
+  'Show the notch':'노치 표시',
+  'Show the taskbar icon':'작업표시줄 아이콘 표시',
+  'Language':'언어',
+  'Words used by Codenotch':'Codenotch가 사용하는 언어',
+  'Follow system':'시스템 따라가기',
+  'English':'English',
+  'Русский':'Русский',
+  'Claude Code can tell Codenotch the moment something happens in a session, instead of Codenotch having to guess from files on disk.':'Claude Code가 세션에서 일어나는 일을 그 즉시 Codenotch에 알려줄 수 있습니다. 디스크 파일로 추측할 필요가 없어집니다.',
+  'Session messages':'세션 메시지',
+  'Let Claude Code notify Codenotch':'Claude Code가 Codenotch에 알리도록 허용',
+  'What this copy of Codenotch is, and where it keeps its files.':'이 Codenotch의 버전과 파일 보관 위치입니다.',
+  'Version':'버전',
+  'Files':'파일',
+  'Data folder':'데이터 폴더',
+  'Open folder':'폴더 열기',
+  'If something looks wrong':'뭔가 이상해 보일 때',
+  'Put the notch back':'노치 되돌리기',
+  'Reset position':'위치 초기화',
+  'Saved':'저장됨',
+  'Numbers':'숫자',
+  'two readings':'두 개의 값',
+  'Bars':'막대',
+  '1 to 5 columns':'1~5개 열',
+  'Plain icon':'기본 아이콘',
+  'just the logo':'로고만',
+  'kept':'유지됨',
+  'Showing':'표시 중',
+  'Showing in':'표시 위치',
+  'Notch reads':'노치 표시 항목',
+  'Automatic':'자동',
+  '5-Hour Limit':'5시간 한도',
+  'Weekly Limit':'주간 한도',
+  'Gemini Models':'Gemini 모델',
+  'Claude and GPT models':'Claude·GPT 모델',
+  '"%@" is no longer available':'"%@"은(는) 더 이상 사용할 수 없습니다',
+  '%@ — that slot now shows another provider.':'%@ — 이 슬롯은 이제 다른 프로바이더를 표시합니다.',
+  'One provider always stays ticked, so the pill is never empty.':'알약이 비지 않도록 프로바이더 하나는 항상 선택된 상태로 남습니다.',
+  'The taskbar icon shows the plain Codenotch logo.':'작업표시줄 아이콘이 기본 Codenotch 로고를 표시합니다.',
+  'Choose Numbers or Bars above to draw your usage into it.':'사용량을 그리려면 위에서 숫자 또는 막대를 선택하세요.',
+  'Open the notch for a moment':'노치 잠깐 열어 보기',
+  'At least one provider stays on the notch':'노치에는 프로바이더가 최소 하나 남아 있어야 합니다',
+  'The notch is back in the middle':'노치가 가운데로 돌아왔습니다',
+  'Remove this column':'이 열 제거',
+  'Add column':'열 추가',
+  'The taskbar icon has been kept on. With the notch hidden it is the only way left to open this window or to quit Codenotch, so Codenotch will not let both of them be switched off at the same time.':'작업표시줄 아이콘은 켠 상태로 유지됩니다. 노치가 숨겨져 있으면 이 창을 열거나 Codenotch를 종료할 유일한 수단이므로, 둘을 동시에 끌 수는 없습니다.',
+  'One of these two always stays on. If you hide the notch, the taskbar icon is held on for you, because with both of them gone there would be nothing left to click and no way back to this window.':'이 둘 중 하나는 항상 켜져 있습니다. 노치를 숨기면 작업표시줄 아이콘이 자동으로 유지됩니다. 둘 다 꺼지면 클릭할 것이 없어 이 창으로 돌아올 방법이 없기 때문입니다.',
+  'The black pill against the right-hand edge of the screen, with one ring per tool. Turn it off and the pill disappears; Codenotch keeps counting your usage either way.':'화면 오른쪽 가장자리의 검은 알약으로, 도구마다 링이 하나씩 있습니다. 꺼도 알약만 사라질 뿐 Codenotch는 계속 사용량을 집계합니다.',
+  'The small icon down by the clock. Right-clicking it opens this window, refreshes the readings, or quits Codenotch.':'시계 옆의 작은 아이콘입니다. 우클릭하면 이 창 열기, 값 새로고침, Codenotch 종료를 할 수 있습니다.',
+  'Held on: the notch is hidden, so this icon is the only way left to reach Codenotch. Switch the notch back on first if you want to hide it.':'유지됨: 노치가 숨겨져 있어 이 아이콘이 Codenotch에 접근할 유일한 수단입니다. 이 아이콘을 숨기려면 먼저 노치를 다시 켜세요.',
+  'Sets the language used by Codenotch. “Follow system” uses the language Windows itself is set to.':'Codenotch가 사용할 언어를 정합니다. "시스템 따라가기"는 Windows에 설정된 언어를 사용합니다.',
+  'Turning this on adds a few lines to your Claude Code settings file so that Claude Code sends Codenotch a short message when a session starts, when it is working, when it is waiting for your answer, and when it finishes. That is what makes the ring spin and the amber ring pulse.':'이 옵션을 켜면 Claude Code 설정 파일에 몇 줄이 추가되어, 세션이 시작될 때·작업 중일 때·답을 기다릴 때·끝날 때 Claude Code가 Codenotch에 짧은 메시지를 보냅니다. 링이 돌고 주황 링이 맥박치는 것이 바로 이 기능입니다.',
+  'The file being changed is':'변경되는 파일:',
+  'in your user folder. A dated copy of it is saved before anything is written, and turning this switch off takes the lines out again. Any hooks you added yourself are left alone.':'(사용자 폴더 안) 쓰기 전에 날짜가 붙은 사본을 저장하며, 스위치를 끄면 추가된 줄을 다시 제거합니다. 직접 추가한 훅은 건드리지 않습니다.',
+  'Shows how much of your Claude, Codex, Cursor and Antigravity allowance you have used, in the taskbar icon and in a pill at the edge of the screen.':'Claude, Codex, Cursor, Antigravity 사용량을 작업표시줄 아이콘과 화면 가장자리 알약에 표시합니다.',
+  'Everything Codenotch remembers lives in one folder: your settings, its log file, and the "glyphs" folder where you can drop your own icons. Opens in File Explorer.':'Codenotch의 모든 데이터는 한 폴더에 있습니다: 설정, 로그 파일, 직접 아이콘을 넣을 수 있는 "glyphs" 폴더. 파일 탐색기로 엽니다.',
+  'The pill can be dragged up and down the right-hand edge. If it has ended up somewhere you cannot see it — off the bottom of a screen you have unplugged, say — this drops it back into the middle of the edge.':'알약은 오른쪽 가장자리를 따라 위아래로 끌 수 있습니다. 빼버린 모니터 아래처럼 보이지 않는 곳으로 가버렸다면, 이 버튼이 가장자리 가운데로 되돌립니다.',
+  'Notch size':'노치 크기',
+  'Codenotch':'Codenotch',
+  'Tray icon preview':'트레이 아이콘 미리보기',
+  'Codenotch logo':'Codenotch 로고',
+  'Tray icon at':'트레이 아이콘:',
+  'pixels':'픽셀',
+  'Down the right-hand edge':'오른쪽 가장자리',
+  'Down the left-hand edge':'왼쪽 가장자리',
+  'Top half':'위쪽 절반',
+  'Bottom half':'아래쪽 절반',
+  'Column':'열',
+  'Remove column':'열 제거'
+};
+const STATIC_DICTS = { ru: RU_STATIC, ko: KO_STATIC };
 const STATUS_TEXT = {
   en:{ ok:'', stale:'last reading is old', needsAuth:'not signed in', absent:'not installed', none:'nothing to report', error:'not reachable' },
-  ru:{ ok:'', stale:'данные устарели', needsAuth:'не выполнен вход', absent:'не установлен', none:'нет данных', error:'недоступен' }
+  ru:{ ok:'', stale:'данные устарели', needsAuth:'не выполнен вход', absent:'не установлен', none:'нет данных', error:'недоступен' },
+  ko:{ ok:'', stale:'마지막 값이 오래됨', needsAuth:'로그인 필요', absent:'설치되지 않음', none:'표시할 내용 없음', error:'연결할 수 없음' }
 };
 let uiLang = 'en';
-function ui(key, fallback){ return uiLang === 'ru' ? (RU_STATIC[key] || fallback) : fallback; }
+function ui(key, fallback){ const d = STATIC_DICTS[uiLang]; return d ? (d[key] || fallback) : fallback; }
 function applyStaticUi(){
   const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
   const nodes = [];
@@ -556,7 +657,8 @@ function applyStaticUi(){
     const raw = node.__enText;
     const key = raw.trim();
     if(!key) continue;
-    const translated = uiLang === 'ru' ? RU_STATIC[key] : null;
+    const dict = STATIC_DICTS[uiLang];
+    const translated = dict ? dict[key] : null;
     node.nodeValue = raw.replace(key, translated || key);
   }
   for(const el of document.querySelectorAll('[aria-label],[title],[alt]')){
@@ -565,12 +667,17 @@ function applyStaticUi(){
       const marker = '__en_' + attr.replace('-', '_');
       if(el[marker] === undefined) el[marker] = el.getAttribute(attr);
       const original = el[marker];
-      el.setAttribute(attr, uiLang === 'ru' ? (RU_STATIC[original] || original) : original);
+      const dict = STATIC_DICTS[uiLang];
+      el.setAttribute(attr, dict ? (dict[original] || original) : original);
     }
   }
 }
 function setUiLanguage(lang){
-  uiLang = lang === 'ru' || (lang === 'auto' && /^ru(?:-|$)/i.test(navigator.language || '')) ? 'ru' : 'en';
+  const nav = navigator.language || '';
+  uiLang = (lang in STATIC_DICTS) ? lang
+    : (lang === 'auto' && /^ru(?:-|$)/i.test(nav)) ? 'ru'
+    : (lang === 'auto' && /^ko(?:-|$)/i.test(nav)) ? 'ko'
+    : 'en';
   applyStaticUi();
   render();
 }
