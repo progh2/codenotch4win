@@ -41,7 +41,8 @@ Grab the latest release from the [Releases](../../releases) page — two flavour
   and is the **auto-update channel**: the app checks GitHub Releases and updates itself.
 - **`codenotch-x.y.z-portable.zip`** — portable build, run from anywhere: unzip and start
   `Codenotch.exe` (`codenotch-hook.exe` ships alongside it for Claude Code session detection).
-  No auto-update; it notifies you when a new version is available.
+  No auto-update; a notch notice appears when a new version is available, and Settings has
+  a "Check for updates" button.
 
 Requirements: Windows 10/11 with the WebView2 runtime (preinstalled on Windows 11;
 the installer bootstraps it on Windows 10).
