@@ -436,6 +436,13 @@
         <div class="b-head">If something looks wrong</div>
         <div class="row">
           <div class="r-text">
+            <div class="r-name">Updates</div>
+            <div class="r-why">Codenotch checks GitHub Releases on its own once a day; this asks right now.</div>
+          </div>
+          <div class="r-ctl"><button class="btn" id="btn-checkupd">Check for updates</button></div>
+        </div>
+        <div class="row">
+          <div class="r-text">
             <div class="r-name">Put the notch back</div>
             <div class="r-why">The pill can be dragged up and down the right-hand edge. If it has ended up somewhere you cannot see it — off the bottom of a screen you have unplugged, say — this drops it back into the middle of the edge.</div>
           </div>
@@ -509,6 +516,7 @@ const RU_STATIC = {
   'Session messages':'Сообщения сеанса', 'Let Claude Code notify Codenotch':'Разрешить Claude Code уведомлять Codenotch',
   'What this copy of Codenotch is, and where it keeps its files.':'Что это за копия Codenotch и где хранятся её файлы.', 'Version':'Версия',
   'Files':'Файлы', 'Data folder':'Папка данных', 'Open folder':'Открыть папку', 'If something looks wrong':'Если что-то работает неправильно',
+  'Updates':'Обновления', 'Check for updates':'Проверить обновления', 'Checking for updates…':'Проверка обновлений…', 'Codenotch checks GitHub Releases on its own once a day; this asks right now.':'Codenotch сам проверяет GitHub Releases раз в день; эта кнопка спрашивает прямо сейчас.',
   'Put the notch back':'Вернуть панель', 'Reset position':'Сбросить положение', 'Saved':'Сохранено',
   'Numbers':'Числа', 'two readings':'два показания', 'Bars':'Полосы', '1 to 5 columns':'от 1 до 5 столбцов', 'Plain icon':'Обычный значок', 'just the logo':'только логотип',
   'kept':'оставлено', 'Showing':'Показывается', 'Showing in':'Показывается в',
@@ -586,6 +594,7 @@ const KO_STATIC = {
   'Data folder':'데이터 폴더',
   'Open folder':'폴더 열기',
   'If something looks wrong':'뭔가 이상해 보일 때',
+  'Updates':'업데이트', 'Check for updates':'업데이트 확인', 'Checking for updates…':'업데이트 확인 중…', 'Codenotch checks GitHub Releases on its own once a day; this asks right now.':'Codenotch는 하루에 한 번 GitHub Releases를 스스로 확인합니다. 이 버튼은 지금 바로 확인합니다.',
   'Put the notch back':'노치 되돌리기',
   'Reset position':'위치 초기화',
   'Saved':'저장됨',
@@ -1341,6 +1350,12 @@ document.getElementById('lang').addEventListener('change', e => {
 /* ---- about --------------------------------------------------------------- */
 document.getElementById('btn-data').addEventListener('click', () => {
   invoke('open_data_dir').catch(e => strip('open_data_dir failed: ' + errText(e)));
+});
+document.getElementById('btn-checkupd').addEventListener('click', () => {
+  strip(ui('Checking for updates…', 'Checking for updates…'));
+  invoke('check_updates')
+    .then(msg => strip(String(msg)))
+    .catch(e => strip('check_updates failed: ' + errText(e)));
 });
 document.getElementById('btn-resetpos').addEventListener('click', () => {
   invoke('reset_notch_position')

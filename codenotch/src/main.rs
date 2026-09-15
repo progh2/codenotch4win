@@ -929,6 +929,30 @@ fn reset_notch_position(app: AppHandle) {
     reset_bar(&app);
 }
 
+/// Settings' "Check for updates": the same check the background loop runs, but the
+/// outcome comes back in words. An installed update restarts shortly after replying,
+/// so the message has a moment on screen first.
+#[tauri::command]
+async fn check_updates(app: AppHandle) -> Result<String, String> {
+    let lang = {
+        let st = app.state::<AppState>();
+        let l = st.cfg.lock().unwrap().lang.clone();
+        l
+    };
+    match updater_check::check_async(&app).await? {
+        updater_check::Outcome::UpToDate => Ok(i18n::tr(&lang, "update_none").into()),
+        updater_check::Outcome::Installed(v) => {
+            let a = app.clone();
+            std::thread::spawn(move || {
+                std::thread::sleep(std::time::Duration::from_millis(1800));
+                a.restart();
+            });
+            Ok(i18n::tr(&lang, "update_installing").replace("{v}", &v))
+        }
+        updater_check::Outcome::PortableNewer(v) => Ok(updater_check::portable_notice(&app, &v)),
+    }
+}
+
 #[tauri::command]
 fn open_settings(app: AppHandle) {
     if let Some(w) = app.get_webview_window("settings") {
@@ -1172,6 +1196,7 @@ fn main() {
             get_hooks_installed,
             set_hooks_installed,
             reset_notch_position,
+            check_updates,
             open_settings
         ])
         .setup(move |app| {
