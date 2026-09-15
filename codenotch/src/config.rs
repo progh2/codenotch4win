@@ -118,6 +118,7 @@ impl Default for Config {
             bar_y: None,
             bar_w: None,
             drag_enabled: false,
+            autostart_offered: false,
             notch_y: default_notch_y(),
             scale: default_scale(),
             tray_mode: default_tray_mode(),
