@@ -32,7 +32,7 @@
         <a href="#features">기능</a>
         <a href="#install">설치</a>
         <a href="https://github.com/progh2/codenotch4win">GitHub</a>
-        <a class="btn btn-primary" href="https://github.com/progh2/codenotch4win/releases/latest">최신 버전 받기</a>
+        <a class="btn btn-primary" href="https://github.com/vinzdg/codenotch/releases/latest">최신 버전 받기</a>
       </nav>
     </div>
   </header>
@@ -46,11 +46,11 @@
           <p class="lede-en">The usage notch that sits on the edge of your screen.</p>
           <p class="lede">화면 가장자리에 붙어서 두 가지에 한눈에 답합니다. <strong>AI 사용량이 얼마나 남았나</strong>, 그리고 <strong>Claude가 아직 작업 중인가</strong>.</p>
           <div class="cta-row">
-            <a class="btn btn-primary" data-setup-href href="https://github.com/progh2/codenotch4win/releases/latest">인스톨러 다운로드</a>
+            <a class="btn btn-primary" data-setup-href href="https://github.com/vinzdg/codenotch/releases/latest">인스톨러 다운로드</a>
             <a class="btn btn-ghost" href="https://github.com/progh2/codenotch4win">GitHub 저장소</a>
           </div>
           <div class="meta-row">
-            <span class="chip">권장 <code>Codenotch-Setup-*.exe</code></span>
+            <span class="chip">권장 <code>Codenotch-Setup.exe</code></span>
             <span class="chip">Windows 10/11</span>
             <span class="chip">관리자 권한 불필요</span>
           </div>
@@ -74,7 +74,7 @@
           <article class="card">
             <svg class="ring-ico" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="11" fill="none" stroke="#303030" stroke-width="3"/><circle cx="16" cy="16" r="11" fill="none" stroke="#28e07b" stroke-width="3" stroke-dasharray="22 70" transform="rotate(-90 16 16)"/></svg>
             <h3>Windows 원클릭 설치</h3>
-            <p>Releases에서 <code>Codenotch-Setup-x.y.z.exe</code>(NSIS)를 받아 실행하면 됩니다. 사용자별 설치라 관리자 권한이 없고, Rust 툴체인도 필요 없습니다. 포터블은 <code>codenotch-x.y.z-portable.zip</code>입니다.</p>
+            <p>Releases에서 <code>Codenotch-Setup.exe</code>(NSIS)를 받아 실행하면 됩니다. 사용자별 설치라 관리자 권한이 없고, Rust 툴체인도 필요 없습니다.</p>
           </article>
           <article class="card">
             <svg class="ring-ico" viewBox="0 0 32 32" aria-hidden="true"><rect x="18" y="4" width="12" height="24" rx="6" fill="#111" stroke="#2e2e2e"/><circle cx="24" cy="12" r="3.5" fill="none" stroke="#ff3f00" stroke-width="1.6"/></svg>
@@ -131,7 +131,7 @@
         <div class="steps">
           <div class="step">
             <b>01</b>
-            <p><a href="https://github.com/progh2/codenotch4win/releases/latest">Releases</a>에서 권장 파일 <code>Codenotch-Setup-x.y.z.exe</code>를 받습니다.</p>
+            <p><a href="https://github.com/vinzdg/codenotch/releases/latest">Releases</a>에서 권장 파일 <code>Codenotch-Setup.exe</code>를 받습니다.</p>
           </div>
           <div class="step">
             <b>02</b>
@@ -148,7 +148,7 @@
         </div>
         <p class="note">바이너리는 아직 코드 서명이 없어 첫 실행 시 SmartScreen 경고가 뜹니다. <strong>추가 정보 → 실행</strong>을 선택하세요.</p>
         <div class="cta-row">
-          <a class="btn btn-primary" href="https://github.com/progh2/codenotch4win/releases/latest">GitHub Releases에서 받기</a>
+          <a class="btn btn-primary" href="https://github.com/vinzdg/codenotch/releases/latest">GitHub Releases에서 받기</a>
           <a class="btn btn-ghost" href="https://github.com/progh2/codenotch4win/blob/main/README.ko.md">한국어 README</a>
         </div>
       </div>
@@ -177,7 +177,7 @@
       <div>
         <a href="https://github.com/progh2/codenotch4win">저장소</a>
         ·
-        <a href="https://github.com/progh2/codenotch4win/releases/latest">Releases</a>
+        <a href="https://github.com/vinzdg/codenotch/releases/latest">Releases</a>
         ·
         <a href="PRD.md">PRD</a>
       </div>
@@ -186,7 +186,7 @@
 
   <script>
     (function () {
-      fetch("https://api.github.com/repos/progh2/codenotch4win/releases/latest")
+      fetch("https://api.github.com/repos/vinzdg/codenotch/releases/latest")
         .then(function (res) { return res.ok ? res.json() : null; })
         .then(function (data) {
           if (!data) return;
@@ -194,7 +194,7 @@
             el.textContent = data.tag_name || el.textContent;
           });
           var setup = (data.assets || []).find(function (asset) {
-            return /^Codenotch-Setup-.*\.exe$/i.test(asset.name);
+            return /^Codenotch-Setup.*\.exe$/i.test(asset.name);
           });
           if (setup && setup.browser_download_url) {
             document.querySelectorAll("[data-setup-href]").forEach(function (el) {
