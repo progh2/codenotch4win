@@ -1,5 +1,20 @@
 # Codenotch for Windows (codenotch4win)
 
+> ## ⚠️ 이 프로젝트는 보관(아카이브)되었습니다 — 업스트림에서 받으세요
+>
+> **v1.12.0 (2026-09-16)** 부터 [**vinzdg/codenotch**](https://github.com/vinzdg/codenotch)가
+> 모든 릴리스에 공식 윈도우 인스톨러(`Codenotch-Setup.exe`)를 포함합니다:
+> **https://github.com/vinzdg/codenotch/releases**
+>
+> 이 포크가 존재하던 이유(윈도우 바이너리 배포)가 업스트림에서 해결되어 개발을
+> 종료합니다. 아래 릴리스는 계속 받을 수 있지만 더 이상 업데이트되지 않습니다.
+> 이 포크가 먼저 만들었고 업스트림에 아직 없는 것들(서명된 자동 업데이트,
+> Grok Bot 주간 링, 첫 실행 자동 시작 온보딩, 인스톨러의 구버전 종료)은 추후
+> 업스트림 저장소를 새로 포크해서 기여하는 방안을 검토합니다.
+>
+> 기존 설치자: 이 포크의 빌드를 제거하고 업스트림 것을 설치하면 됩니다 —
+> 설정은 어느 쪽이든 같은 `%APPDATA%\codenotch` 폴더를 씁니다.
+
 [English README](README.md) · [PRD](docs/PRD.md) · [소개 페이지](https://progh2.github.io/codenotch4win/)
 
 [Codenotch](https://github.com/vinzdg/codenotch)의 윈도우 버전입니다 — 화면 가장자리에 붙어서

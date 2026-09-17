@@ -1,5 +1,21 @@
 # Codenotch for Windows (codenotch4win)
 
+> ## ⚠️ This project is archived — get Codenotch from upstream
+>
+> As of **v1.12.0 (2026-09-16)**, [**vinzdg/codenotch**](https://github.com/vinzdg/codenotch)
+> ships an official Windows installer (`Codenotch-Setup.exe`) with every release:
+> **https://github.com/vinzdg/codenotch/releases**
+>
+> That closed the gap this fork existed to fill. Development here has stopped;
+> the releases below remain downloadable but will receive no updates.
+> Things this fork pioneered that upstream does not have yet (signed auto-update,
+> the Grok Bot weekly ring, first-run autostart onboarding, the installer closing
+> a running old build) may be offered upstream later from a fresh fork of the
+> upstream repository.
+>
+> Existing installs: uninstall this fork's build and install upstream's — settings
+> live in the same `%APPDATA%\codenotch` folder either way.
+
 [한국어 README](README.ko.md) · [PRD (Korean)](docs/PRD.md) · [Landing page](https://progh2.github.io/codenotch4win/)
 
 A Windows build of [Codenotch](https://github.com/vinzdg/codenotch) — the usage notch that
