@@ -15,6 +15,12 @@
 >
 > Existing installs: uninstall this fork's build and install upstream's — settings
 > live in the same `%APPDATA%\codenotch` folder either way.
+>
+> **Update (2026-09-22):** upstream now speaks Korean too, on the Mac and on Windows
+> ([vinzdg/codenotch#305](https://github.com/vinzdg/codenotch/pull/305)). With Windows
+> releases and Korean both upstream, there is no reason left to use this fork — please use
+> [Codenotch](https://github.com/vinzdg/codenotch) itself. (P.S. I helped with the Korean
+> translation there, too.)
 
 [한국어 README](README.ko.md) · [PRD (Korean)](docs/PRD.md) · [Landing page](https://progh2.github.io/codenotch4win/)
 

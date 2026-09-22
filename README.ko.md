@@ -14,6 +14,11 @@
 >
 > 기존 설치자: 이 포크의 빌드를 제거하고 업스트림 것을 설치하면 됩니다 —
 > 설정은 어느 쪽이든 같은 `%APPDATA%\codenotch` 폴더를 씁니다.
+>
+> **업데이트 (2026-09-22):** 이제 본가 [Codenotch](https://github.com/vinzdg/codenotch)가
+> Windows 릴리스와 한국어(맥·윈도우 모두,
+> [vinzdg/codenotch#305](https://github.com/vinzdg/codenotch/pull/305))를 지원합니다.
+> 이 포크를 쓸 이유가 더는 없으니 그쪽을 이용해 주세요. (추신: 한글화에 저도 참여했어요~)
 
 [English README](README.md) · [PRD](docs/PRD.md) · [소개 페이지](https://progh2.github.io/codenotch4win/)
 
